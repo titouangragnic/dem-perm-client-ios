@@ -1,0 +1,121 @@
+name: Tag → PR vers repo principal (iOS)
+
+on:
+  push:
+    tags:
+      - 'v*'        # adapte le pattern de tag
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read   # pour checkout du repo courant
+      # PR et push se font via PAT, pas via GITHUB_TOKEN
+
+    steps:
+      - name: Checkout (repo de groupe)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # on a besoin des tags et de l'historique
+
+      - name: Vérifier que le tag pointe sur main (sécurité)
+        shell: bash
+        run: |
+          TAG_SHA="${GITHUB_SHA}"
+          git fetch origin +refs/heads/*:refs/remotes/origin/*
+          if ! git merge-base --is-ancestor "$TAG_SHA" "origin/main"; then
+            echo "Le tag ${GITHUB_REF_NAME} ne pointe pas sur un commit contenu dans origin/main → on stoppe proprement."
+            echo "still_ok=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+      - name: Installer deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y rsync
+
+      - name: Cloner le repo principal
+        env:
+            MAIN_REPO_OWNER: ${{ vars.MAIN_REPO_OWNER }}
+            MAIN_REPO_NAME: ${{ vars.MAIN_REPO_NAME }}
+            MAIN_REPO_TOKEN: ${{ secrets.MAIN_REPO_TOKEN }}
+        run: |
+            set -e
+            AUTH_URL="https://${MAIN_REPO_TOKEN}@github.com/${MAIN_REPO_OWNER}/${MAIN_REPO_NAME}.git"
+            git clone "$AUTH_URL" main-repo
+
+      - name: Créer branche de sync + copier fichiers
+        env:
+          MAIN_REPO_DEFAULT_BRANCH: ${{ vars.MAIN_REPO_DEFAULT_BRANCH }}
+        run: |
+          set -e
+          BRANCH="chore/ios-sync-${GITHUB_REF_NAME}"
+          cd main-repo
+          git fetch origin "$MAIN_REPO_DEFAULT_BRANCH"
+          git checkout -B "$BRANCH" "origin/${MAIN_REPO_DEFAULT_BRANCH}"
+
+          mkdir -p docs/client/ios src/client/ios
+
+          # Copie avec reset des deletions pour rester miroir
+          rsync -a --delete ../docs/ ./docs/client/ios/ || true
+          rsync -a --delete ../src/  ./src/client/ios/  || true
+
+          if git status --porcelain | grep -q .; then
+            git add docs/client/ios src/client/ios
+            git config user.name "${SYNC_AUTHOR_NAME:-ios-bot}"
+            git config user.email "${SYNC_AUTHOR_EMAIL:-ios-bot@local}"
+            git commit -m "chore(ios): sync ${GITHUB_REF_NAME}"
+          else
+            echo "Aucun changement → on arrête proprement."
+            exit 0
+          fi
+
+      - name: Push branche
+        env:
+          MAIN_REPO_TOKEN: ${{ secrets.MAIN_REPO_TOKEN }}
+        run: |
+          set -e
+          cd main-repo
+          git push -u origin HEAD
+
+      - name: Créer la Pull Request
+        env:
+          MAIN_REPO_OWNER: ${{ vars.MAIN_REPO_OWNER }}
+          MAIN_REPO_NAME:  ${{ vars.MAIN_REPO_NAME }}
+          MAIN_REPO_DEFAULT_BRANCH: ${{ vars.MAIN_REPO_DEFAULT_BRANCH }}
+          MAIN_REPO_TOKEN: ${{ secrets.MAIN_REPO_TOKEN }}
+        run: |
+          set -e
+          cd main-repo
+          SRC_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          TITLE="chore(ios): sync ${GITHUB_REF_NAME}"
+          BODY=$(
+            cat <<EOF
+                Synchronisation iOS depuis le repo de groupe.
+
+                - Tag : \`${GITHUB_REF_NAME}\`
+                - Commit : \`${GITHUB_SHA}\`
+
+                Cette PR met à jour:
+                - \`docs/client/ios\`
+                - \`src/client/ios\`
+
+                EOF
+                        )
+
+          # Création via GitHub API (curl)
+          API_URL="https://api.github.com/repos/${MAIN_REPO_OWNER}/${MAIN_REPO_NAME}/pulls"
+          jq -n \
+            --arg title "$TITLE" \
+            --arg head  "$SRC_BRANCH" \
+            --arg base  "$MAIN_REPO_DEFAULT_BRANCH" \
+            --arg body  "$BODY" \
+            '{title:$title, head:$head, base:$base, body:$body, maintainer_can_modify:true}' \
+          | curl -sS -X POST "$API_URL" \
+              -H "Authorization: Bearer ${MAIN_REPO_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -d @- \
+          | tee /tmp/pr.json
+
+          echo "PR créée:"
+          cat /tmp/pr.json | jq -r '.html_url // "—"'
