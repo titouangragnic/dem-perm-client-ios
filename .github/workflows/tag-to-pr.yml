@@ -89,19 +89,7 @@ jobs:
           cd main-repo
           SRC_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           TITLE="chore(ios): sync ${GITHUB_REF_NAME}"
-          BODY=$(
-            cat <<EOF
-                Synchronisation iOS depuis le repo de groupe.
-
-                - Tag : \`${GITHUB_REF_NAME}\`
-                - Commit : \`${GITHUB_SHA}\`
-
-                Cette PR met à jour:
-                - \`docs/client/ios\`
-                - \`src/client/ios\`
-
-                EOF
-                        )
+          BODY="$(printf 'Synchronisation iOS depuis le repo de groupe.\n\n- Tag : `%s`\n- Commit : `%s`\n\nCette PR met à jour:\n- `docs/client/ios`\n- `src/client/ios`\n' "$GITHUB_REF_NAME" "$GITHUB_SHA")"
 
           # Création via GitHub API (curl)
           API_URL="https://api.github.com/repos/${MAIN_REPO_OWNER}/${MAIN_REPO_NAME}/pulls"
