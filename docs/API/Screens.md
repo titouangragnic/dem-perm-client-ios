@@ -10,6 +10,7 @@
 
 * ### Serveur Social:
     * ```GET /messages/{id}``` **(à demander au serveur)**
+    * Websocket
 
 ## Feed
 
