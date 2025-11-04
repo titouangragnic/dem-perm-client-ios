@@ -1,21 +1,50 @@
-# dem-perm-client-ios
+# Welcome to your Expo app 👋
 
-## Sync automatique vers le repo principal (tag → PR)
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-Quand un tag `v*` est poussé, le workflow `.github/workflows/tag-to-pr.yml` crée une branche dans le repo principal et ouvre une PR qui contient une copie miroir des dossiers suivants :
+## Get started
 
-- `docs/`  → `docs/client/ios/`
-- `src/`   → `src/client/ios/`
+1. Install dependencies
 
-Remarques courtes :
-- Seuls les contenus de `docs/` et `src/` sont actuellement synchronisés.
-- Le workflow vérifie que le tag pointe sur un commit contenu dans `origin/main` ; sinon il s'arrête proprement.
-- La copie est faite en miroir (suppression incluse) via `rsync --delete`.
+   ```bash
+   npm install
+   ```
 
-Backend mocker :
-- Ne placez PAS le backend mocker sous `src/` si vous ne voulez pas qu'il soit poussé automatiquement vers le repo principal. Créez-le dans un dossier séparé à la racine (par ex. `mock-backend/`) pour garder le contrôle et l'ajouter explicitement au workflow si nécessaire.
+2. Start the app
 
-Repo principal cible :
-- Nom : `demperm`
-- URL : https://github.com/oricou/demperm
-- Ce repo est public.
+   ```bash
+   npx expo start
+   ```
+
+In the output, you'll find options to open the app in a
+
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Get a fresh project
+
+When you're ready, run:
+
+```bash
+npm run reset-project
+```
+
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+
+## Learn more
+
+To learn more about developing your project with Expo, look at the following resources:
+
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+
+## Join the community
+
+Join our community of developers creating universal apps.
+
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
