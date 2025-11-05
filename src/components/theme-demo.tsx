@@ -11,12 +11,7 @@ import { Colors, Spacing } from '@/constants/theme';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export function ThemeDemo() {
-  const { colors, typography, spacing, colorScheme, themeMode } = useTheme();
-
-  // Log pour déboguer
-  console.log('🎨 Theme Demo - Current theme mode:', themeMode);
-  console.log('🎨 Theme Demo - Current color scheme:', colorScheme);
-  console.log('🎨 Theme Demo - Colors:', colors);
+  const { colors, typography, spacing, colorScheme } = useTheme();
 
   return (
     <ScrollView style={{ flex: 1 }}>
