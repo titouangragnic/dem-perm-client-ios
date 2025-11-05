@@ -74,8 +74,10 @@ export default function TabTwoScreen() {
       <Collapsible title="Light and dark mode components">
         <ThemedText>
           This template has light and dark mode support. The{' '}
-          <ThemedText type="profile">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
+          <ThemedText type="profile">useTheme()</ThemedText> hook lets you access
+          the current color scheme and change it. You can also use{' '}
+          <ThemedText type="profile">ThemedView</ThemedText> and{' '}
+          <ThemedText type="profile">ThemedText</ThemedText> components that adapt automatically.
         </ThemedText>
         <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
           <ThemedText type="link">Learn more</ThemedText>
