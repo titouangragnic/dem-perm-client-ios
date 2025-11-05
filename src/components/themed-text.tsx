@@ -1,11 +1,12 @@
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { Typography } from '@/constants/theme';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'default' | 'title' | 'screenTitle' | 'profile' | 'seeMore' | 'link';
 };
 
 export function ThemedText({
@@ -23,8 +24,9 @@ export function ThemedText({
         { color },
         type === 'default' ? styles.default : undefined,
         type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
+        type === 'screenTitle' ? styles.screenTitle : undefined,
+        type === 'profile' ? styles.profile : undefined,
+        type === 'seeMore' ? styles.seeMore : undefined,
         type === 'link' ? styles.link : undefined,
         style,
       ]}
@@ -35,26 +37,33 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
+    fontSize: Typography.sizes.general,
+    fontWeight: Typography.weights.regular,
+    fontFamily: Typography.fonts?.regular,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
+    fontSize: Typography.sizes.title,
+    fontWeight: Typography.weights.regular,
+    fontFamily: Typography.fonts?.regular,
   },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  screenTitle: {
+    fontSize: Typography.sizes.screenTitle,
+    fontWeight: Typography.weights.regular,
+    fontFamily: Typography.fonts?.regular,
+  },
+  profile: {
+    fontSize: Typography.sizes.profile,
+    fontWeight: Typography.weights.semiBold,
+    fontFamily: Typography.fonts?.semiBold,
+  },
+  seeMore: {
+    fontSize: Typography.sizes.seeMore,
+    fontWeight: Typography.weights.semiBold,
+    fontFamily: Typography.fonts?.semiBold,
   },
   link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
+    fontSize: Typography.sizes.general,
+    fontWeight: Typography.weights.semiBold,
+    fontFamily: Typography.fonts?.semiBold,
   },
 });
