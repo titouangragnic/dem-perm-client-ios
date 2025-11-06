@@ -3,6 +3,8 @@ export class UserDto {
     googleId!: string;
     email!: string;
     username!: string;
+    displayName!: string;
+    profilePictureUrl!: string;
     createdAt!: Date;
     lastLoginAt!: Date;
 }
