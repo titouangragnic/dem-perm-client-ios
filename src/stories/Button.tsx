@@ -1,7 +1,7 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {useThemeContext} from "@/contexts/theme-context";
-import {Colors, Spacing, VariantKey} from '@/constants/theme';
+import {Colors, VariantKey} from '@/constants/theme';
 import {iconVariants, fontFamily} from "@/stories/utils";
 import {Ionicons} from "@expo/vector-icons";
 
