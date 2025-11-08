@@ -40,7 +40,7 @@ export const Forum = ({ title, tags = [], onPress, style }: ForumProps) => {
                 {tags.length > 0 && (
                     <View style={styles.tagsContainer}>
                         {tags.map((tag : string, index : number) => (
-                            <Chip key={index} label={tag} size="medium" backgroundColor="#CBA6F7" />
+                            <Chip key={index} label={tag} size="small" backgroundColor="#CBA6F7" />
                         ))}
                     </View>
                 )}
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     title: {
-        fontSize: 16,
+        fontSize: 14,
     },
     tagsContainer: {
         flexDirection: 'row',
