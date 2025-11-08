@@ -14,7 +14,7 @@ export interface ButtonProps {
   size?: 'small' | 'medium' | 'large';
   /** Button contents */
   label: string;
-  /** Optional click handler */
+  /** Click handler */
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 }

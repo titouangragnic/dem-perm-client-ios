@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 import { Colors, Spacing } from '@/constants/theme';
+import {Toggle} from "@/stories/Toggle";
 
 export default function HomeScreen() {
   return (
