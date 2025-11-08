@@ -1,5 +1,6 @@
 import {UserDto} from "@/api/types/user.dto";
-import {PostMediaDto} from "@/api/types/post-media.dto";
+import {PostDto} from "@/api/types/post.dto";
+import {DomainDto} from "@/api/types/domain.dto";
 
 export class ForumDto {
     forumId!: number;
@@ -7,7 +8,8 @@ export class ForumDto {
     forumName!: string;
     description!: string;
     forumImageUrl!: string;
-    posts!: PostMediaDto[];
+    domains!: DomainDto[];
+    posts!: PostDto[];
     memberCount!: number;
     postCount!: number;
     createdAt!: Date;
