@@ -40,3 +40,7 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+#storybook
+*storybook.log
+src/storybook-static
