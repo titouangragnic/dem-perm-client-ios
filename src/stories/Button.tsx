@@ -1,11 +1,15 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {useThemeContext} from "@/contexts/theme-context";
+import {Colors, Spacing, VariantKey} from '@/constants/theme';
+import {iconVariants, fontFamily} from "@/stories/utils";
+import {Ionicons} from "@expo/vector-icons";
 
 export interface ButtonProps {
-  /** Is this the principal call to action on the page? */
-  primary?: boolean;
   /** What background color to use */
-  backgroundColor?: string;
+  backgroundColor?: VariantKey;
+  /** What icon to show */
+  icon?: iconVariants;
   /** How large should the button be? */
   size?: 'small' | 'medium' | 'large';
   /** Button contents */
@@ -17,32 +21,42 @@ export interface ButtonProps {
 
 /** Primary UI component for user interaction */
 export const Button = ({
-  primary = false,
   size = 'medium',
-  backgroundColor,
+  backgroundColor = "highlight1",
   label,
+  icon,
   style,
   onPress,
 }: ButtonProps) => {
-  const modeStyle = primary ? styles.primary : styles.secondary;
-  const textModeStyle = primary ? styles.primaryText : styles.secondaryText;
+  const { colorScheme } = useThemeContext();
 
   const sizeStyle = styles[size];
   const textSizeStyle = textSizeStyles[size];
+  const textColor = backgroundColor === "primary" || backgroundColor === "background" ?
+      Colors[colorScheme].text : Colors[colorScheme].background;
+
+  let iconSize: number = 15;
+  if(size === "small"){
+      iconSize = 12;
+  }
+  if(size === "large"){
+      iconSize = 18;
+  }
 
   return (
     <TouchableOpacity accessibilityRole="button" activeOpacity={0.6} onPress={onPress}>
       <View
         style={[
           styles.button,
-          modeStyle,
           sizeStyle,
           style,
-          !!backgroundColor && { backgroundColor },
-          { borderColor: 'black' },
+          { borderColor: 'black', backgroundColor: Colors[colorScheme][backgroundColor] },
         ]}
       >
-        <Text style={[textModeStyle, textSizeStyle]}>{label}</Text>
+          {icon &&(
+              <Ionicons name={icon} color={textColor} size={iconSize}/>
+          )}
+        <Text style={[textSizeStyle, {color: textColor, fontFamily}]}>{label}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -50,44 +64,30 @@ export const Button = ({
 
 const styles = StyleSheet.create({
   button: {
-    borderWidth: 0,
-    borderRadius: 48,
+    borderRadius: 16,
+    flexDirection: 'row',
+    gap: 6,
   },
   buttonText: {
-    fontWeight: '700',
-    lineHeight: 1,
-  },
-  primary: {
-    backgroundColor: '#1ea7fd',
-  },
-  primaryText: {
-    color: 'white',
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-    borderColor: 'rgba(0, 0, 0, 0.15)',
-    borderWidth: 1,
-  },
-  secondaryText: {
-    color: '#333',
+    textAlign: 'center',
   },
   small: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: 1,
+    paddingHorizontal: 14,
   },
   smallText: {
     fontSize: 12,
   },
   medium: {
-    paddingVertical: 11,
-    paddingHorizontal: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 17,
   },
   mediumText: {
     fontSize: 14,
   },
   large: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: 7,
+    paddingHorizontal: 20,
   },
   largeText: {
     fontSize: 16,

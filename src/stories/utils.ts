@@ -1,0 +1,25 @@
+export type iconVariants =
+    'home'
+    | 'paper-plane'
+    | 'person-add'
+    | 'megaphone'
+    | 'heart'
+    | 'chatbox'
+    | 'chatbubbles'
+    | 'share-social'
+    | 'duplicate'
+    | 'repeat'
+    | 'search'
+    | 'person'
+    | 'newspaper'
+    | 'create'
+    | 'bookmark'
+    | 'close'
+    | 'settings'
+    | 'chevron-back'
+    | 'add'
+    | 'chevron-down'
+    | 'image'
+    | 'exit';
+
+export const fontFamily : string = 'Inter-Regular, sans-serif';

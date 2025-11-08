@@ -2,17 +2,19 @@ import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 
 import { View } from 'react-native';
 import { fn } from 'storybook/test';
-
+import { ThemeProvider } from '@/contexts/theme-context';
 import { Button } from './Button';
 
 const meta = {
-  title: 'Example/Button',
+  title: 'Interact/Button',
   component: Button,
   decorators: [
     (Story) => (
-      <View style={{ flex: 1, alignItems: 'flex-start' }}>
-        <Story />
-      </View>
+        <ThemeProvider>
+            <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                <Story />
+            </View>
+        </ThemeProvider>
     ),
   ],
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
@@ -25,29 +27,29 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = {
+export const Basic: Story = {
   args: {
-    primary: true,
-    label: 'Button',
+    label: 'Rejoindre',
   },
 };
 
-export const Secondary: Story = {
+export const WithIcon: Story = {
   args: {
-    label: 'Button',
+    label: 'Home',
+    icon: 'home'
   },
 };
 
 export const Large: Story = {
   args: {
     size: 'large',
-    label: 'Button',
+    label: 'Rejoindre',
   },
 };
 
 export const Small: Story = {
   args: {
     size: 'small',
-    label: 'Button',
+    label: 'Rejoindre',
   },
 };
