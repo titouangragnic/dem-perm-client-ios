@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import { View } from 'react-native';
 import { fn } from 'storybook/test';
 import { ThemeProvider } from '@/contexts/theme-context';
-import {Forum} from "@/stories/Forum";
+import { Domain } from './Domain';
 
 const meta = {
-    title: 'Interact/Forum',
-    component: Forum,
+    title: 'Interact/Domain',
+    component: Domain,
     decorators: [
         (Story) => (
             <ThemeProvider>
@@ -18,21 +18,25 @@ const meta = {
     ],
     tags: ['autodocs'],
     args: { onPress: fn() },
-} satisfies Meta<typeof Forum>;
+} satisfies Meta<typeof Domain>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Simple: Story = {
+export const Basic: Story = {
     args: {
-        title: 'Mode sombre',
+        icon: 'home',
+        label: 'Immobilier',
     },
 };
 
-export const WithTags: Story = {
+export const Large: Story = {
     args: {
-        title: 'Filtres actifs',
-        tags: ['Maison', 'Appartement', 'Studio'],
+        icon: 'megaphone',
+        label: 'Emploi',
+        thickness: 32,
     },
 };
+
+

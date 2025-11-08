@@ -24,14 +24,13 @@ export const Forum = ({ title, tags = [], onPress, style }: ForumProps) => {
 
     const backgroundColor = Colors[colorScheme].background;
     const textColor = Colors[colorScheme].text;
-    const borderColor = Colors[colorScheme].highlight1;
 
     return (
         <TouchableOpacity
             activeOpacity={onPress ? 0.7 : 1}
             onPress={onPress}
             accessibilityRole="button"
-            style={[styles.card, { backgroundColor, borderColor }, style]}
+            style={[styles.card, { backgroundColor }, style]}
         >
             {/* Partie gauche */}
             <View style={styles.leftSection}>

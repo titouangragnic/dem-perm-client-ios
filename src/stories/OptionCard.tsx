@@ -12,8 +12,6 @@ export interface OptionCardProps {
     isEnabled: boolean;
     /** Callback when toggle changes */
     onValueChange: (value: boolean) => void;
-    /** Background color variant */
-    backgroundColor?: VariantKey;
     /** Optional description under the label */
     description?: string;
     /** Optional custom style */
@@ -28,16 +26,17 @@ export const OptionCard = ({
                                description,
                                isEnabled,
                                onValueChange,
-                               backgroundColor = 'background',
                                style,
                                disabled = false,
                            }: OptionCardProps) => {
     const { colorScheme } = useThemeContext();
 
+    const backgroundColor = Colors[colorScheme].background;
     const textColor = Colors[colorScheme].text;
     const handleToggle = () => {
         if (!disabled) onValueChange(!isEnabled);
     };
+
 
     return (
         <TouchableOpacity
@@ -50,8 +49,8 @@ export const OptionCard = ({
                     styles.card,
                     style,
                     {
-                        backgroundColor: Colors[colorScheme][backgroundColor],
                         opacity: disabled ? 0.5 : 1,
+                        backgroundColor: backgroundColor,
                     },
                 ]}
             >
@@ -82,7 +81,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 16,
-        fontWeight: '600',
     },
     description: {
         fontSize: 12,
