@@ -25,6 +25,15 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Ouvrir la documentation
+
+Le projet utilise storybook qui vous permet d’avoir les composants définis à utiliser, ces composants sont personnalisables via l’interface, vous pouvez ensuite récupérer le code correspondant au composant.
+
+1. Lancer storybook en local
+```bash
+npm run storybook
+```
+
 ## Get a fresh project
 
 When you're ready, run:

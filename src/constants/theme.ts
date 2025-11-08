@@ -37,6 +37,8 @@ export const Colors = {
   },
 };
 
+export type VariantKey = 'primary' | 'background' | 'highlight1' | 'highlight2';
+
 /**
  * Typographie selon la charte graphique
  * Tous les textes utilisent la police Inter
