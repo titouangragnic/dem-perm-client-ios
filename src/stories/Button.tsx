@@ -13,7 +13,7 @@ export interface ButtonProps {
   /** How large should the button be? */
   size?: 'small' | 'medium' | 'large';
   /** Button contents */
-  label: string;
+  label?: string;
   /** Click handler */
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
@@ -56,7 +56,9 @@ export const Button = ({
           {icon &&(
               <Ionicons name={icon} color={textColor} size={iconSize}/>
           )}
-        <Text style={[textSizeStyle, {color: textColor, fontFamily}]}>{label}</Text>
+          {label && (
+              <Text style={[textSizeStyle, {color: textColor, fontFamily}]}>{label}</Text>
+          )}
       </View>
     </TouchableOpacity>
   );

@@ -27,17 +27,23 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Basic: Story = {
+export const OnlyLabel: Story = {
   args: {
     label: 'Rejoindre',
   },
 };
 
-export const WithIcon: Story = {
+export const LabelWithIcon: Story = {
   args: {
     label: 'Home',
     icon: 'home'
   },
+};
+
+export const OnlyIcon: Story = {
+    args: {
+        icon: 'chatbubbles'
+    },
 };
 
 export const Large: Story = {
