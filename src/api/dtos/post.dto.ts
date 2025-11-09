@@ -1,7 +1,7 @@
-import {UserProfileDto} from "@/api/types/user-profile.dto";
-import {ForumDto} from "@/api/types/forum.dto";
-import {PostMediaDto} from "@/api/types/post-media.dto";
-import {CommentDto} from "@/api/types/comment-dto";
+import {UserProfileDto} from "@/api/dtos/user-profile.dto";
+import {ForumDto} from "@/api/dtos/forum.dto";
+import {PostMediaDto} from "@/api/dtos/post-media.dto";
+import {CommentDto} from "@/api/dtos/comment-dto";
 
 export class PostDto {
     postId!: number;

@@ -1,4 +1,4 @@
-import {UserDto} from "@/api/types/user.dto";
+import {UserDto} from "@/api/dtos/user.dto";
 
 export class CommentDto {
     commentId!: number;

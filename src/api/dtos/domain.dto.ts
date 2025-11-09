@@ -1,4 +1,4 @@
-import {ForumDto} from "@/api/types/forum.dto";
+import {ForumDto} from "@/api/dtos/forum.dto";
 
 export class DomainDto {
     domainId!: number;
