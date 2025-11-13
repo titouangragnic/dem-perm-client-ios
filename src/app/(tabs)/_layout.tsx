@@ -30,13 +30,41 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profil',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
+        <Tabs.Screen
+            name="feed"
+            options={{
+                title: 'Accueil',
+                tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            }}
+        />
+        <Tabs.Screen
+            name="research"
+            options={{
+                title: 'Recherche',
+                tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            }}
+        />
+        <Tabs.Screen
+            name="democracy"
+            options={{
+                title: 'Démocratie',
+                tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            }}
+        />
+        <Tabs.Screen
+            name="forums"
+            options={{
+                title: 'Forums',
+                tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+            }}
+        />
+        <Tabs.Screen
+            name="profile"
+            options={{
+              title: 'Profil',
+              tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+            }}
+        />
     </Tabs>
   );
 }
