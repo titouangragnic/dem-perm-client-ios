@@ -1,6 +1,7 @@
 import { StyleSheet, TouchableOpacity, View, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ConversationListItem } from '@/stories/ConversationListItem';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -16,48 +17,32 @@ export default function ConversationsListScreen() {
     const chats = getChats();
 
     const renderConversationItem = ({ item }: { item: SimpleChat }) => (
-        <TouchableOpacity
-            style={[
-                styles.conversationItem,
-                { backgroundColor: colorScheme === 'light' ? Colors.light.primary : Colors.dark.primary }
-            ]}
-            onPress={() => router.push(`/privateMessages/singleConversation?id=${item.id}`)}
-        >
-            <View style={styles.avatar}>
-                <ThemedText style={styles.avatarText}>
-                    {item.user.displayName.charAt(0).toUpperCase()}
-                </ThemedText>
-            </View>
-            <ThemedText style={styles.userName}>{item.user.displayName}</ThemedText>
-            <IconSymbol
-                name="chevron.right"
-                size={20}
-                color={colorScheme === 'light' ? Colors.light.text : Colors.dark.text}
-                style={styles.chevron}
-            />
-        </TouchableOpacity>
+        <ConversationListItem
+            chat={item}
+            onPress={() =>
+                router.push(`/privateMessages/singleConversation?id=${item.id}`)
+            }
+        />
     );
 
     return (
         <ThemedView style={styles.container}>
             <View style={[
                 styles.header,
-                { 
+                {
                     backgroundColor: colorScheme === 'light' ? Colors.light.background : Colors.dark.background,
                     paddingTop: insets.top + Spacing.padding
                 }
             ]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.leftButton}>
-                    <View style={styles.buttonPlaceholder} />
-                </TouchableOpacity>
-                <ThemedText style={styles.headerTitle}>Messages privés</ThemedText>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <IconSymbol
                         name="chevron.left"
                         size={24}
                         color={colorScheme === 'light' ? Colors.light.text : Colors.dark.text}
                     />
                 </TouchableOpacity>
+                <ThemedText style={styles.headerTitle}>Messages privés</ThemedText>
+                <View style={styles.backButton} />
             </View>
 
             <FlatList
@@ -95,12 +80,6 @@ const styles = StyleSheet.create({
         fontSize: Typography.sizes.screenTitle,
         fontWeight: Typography.weights.semiBold,
     },
-    rightButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     buttonPlaceholder: {
         width: 30,
         height: 30,
@@ -112,7 +91,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingHorizontal: Spacing.padding,
-        gap: Spacing.margin,
+        gap: 1,
     },
     conversationItem: {
         flexDirection: 'row',

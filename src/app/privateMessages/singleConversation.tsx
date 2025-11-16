@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
         height: 40,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#CCCCCC',
     },
     headerTitle: {
         fontSize: Typography.sizes.screenTitle,

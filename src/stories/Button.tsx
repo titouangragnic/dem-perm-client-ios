@@ -69,6 +69,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     flexDirection: 'row',
     gap: 6,
+    justifyContent: 'center',   // horizontally center text + icon
+    alignItems: 'center',
   },
   buttonText: {
     textAlign: 'center',
