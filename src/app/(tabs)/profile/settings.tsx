@@ -15,10 +15,10 @@ export default function SettingsScreen() {
     const { themeMode, setThemeMode, colorScheme } = useTheme();
     const [settings, setSettings] = useState<Settings>()
     const backgroundColor = Colors[colorScheme].primary;
-    const [isShowingVote, setIsShowingVote] = useState<boolean>();
-    const [isProfilePublic, setIsProfilePublic] = useState<boolean>();
-    const [isLimitedToUndredVotes, setIsLimitedToUndredVotes] = useState<boolean>();
-    const [allowedNotifications, setAllowedNotifications] = useState<boolean>();
+    const [isShowingVote, setIsShowingVote] = useState<boolean>(false);
+    const [isProfilePublic, setIsProfilePublic] = useState<boolean>(false);
+    const [isLimitedToUndredVotes, setIsLimitedToUndredVotes] = useState<boolean>(false);
+    const [allowedNotifications, setAllowedNotifications] = useState<boolean>(false);
     const [isLightTheme, setIsLightTheme] = useState<boolean>(colorScheme === 'light');
     const [isAutoTheme, setIsAutoTheme] = useState<boolean>(themeMode === 'auto');
 
