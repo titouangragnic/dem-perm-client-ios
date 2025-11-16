@@ -17,6 +17,8 @@ export interface ListItemProps {
     isDeleteVisible?: boolean;
     /** Ministère pour lequel l'utilisateur est membre*/
     ministry?: Ministere;
+    /** Est ce qu'il est underlined ? */
+    isUnderlined?: boolean;
     /** Fonction au clic sur la carte (optionnelle) */
     onPress?: () => void;
     /** Fonction au clic sur la croix (optionnelle) */
@@ -31,16 +33,17 @@ export const ListItem = ({
                              username,
                              votes,
                              ministry,
+                             isUnderlined = false,
                              isDeleteVisible,
                              onPress,
                              onRemove,
                              style,
                          }: ListItemProps) => {
     const { colorScheme } = useThemeContext();
-    const backgroundColor = Colors[colorScheme].background;
+    const backgroundColor = isUnderlined ? Colors[colorScheme].background : Colors[colorScheme].primary;
     const textColor = Colors[colorScheme].text;
     const highlightColor = Colors[colorScheme].highlight1;
-    const borderColor = Colors[colorScheme].highlight1;
+    const borderColor = isUnderlined ? Colors[colorScheme].highlight1 : Colors[colorScheme].primary;
 
     return (
         <TouchableOpacity
@@ -61,12 +64,14 @@ export const ListItem = ({
 
             {/* Partie droite : Votes + icône de suppression */}
             <View style={styles.rightSection}>
-                <Text style={[styles.votes, { color: highlightColor, fontFamily }]}>
-                    {votes} votes
-                </Text>
-                {ministry &&
-                    <Chip size={"small"} label={ministry} backgroundColor={ministereDomainColors[ministry]}/>
-                }
+                <View style={{flexDirection:"column", alignItems: 'center'}}>
+                    <Text style={[styles.votes, { color: highlightColor, fontFamily }]}>
+                        {votes} votes
+                    </Text>
+                    {ministry &&
+                        <Chip size={"small"} label={ministry} backgroundColor={ministereDomainColors[ministry]}/>
+                    }
+                </View>
 
                 {isDeleteVisible && (
                     <TouchableOpacity
@@ -109,7 +114,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     rightSection: {
-        flexDirection: 'column',
+        flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
     },
