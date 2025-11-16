@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Colors} from "@/constants/theme";
 import {SafeAreaView} from "react-native-safe-area-context";
@@ -8,16 +8,28 @@ import {Toggle} from "@/stories/Toggle";
 import {Button} from "@/stories/Button";
 import {router} from "expo-router";
 import {useTheme} from "@/hooks/use-theme";
+import {Settings} from "@/api/types/profile/settings";
+import {getSettings} from "@/api/mock/functions";
 
 export default function SettingsScreen() {
     const { themeMode, setThemeMode, colorScheme } = useTheme();
+    const [settings, setSettings] = useState<Settings>()
     const backgroundColor = Colors[colorScheme].primary;
-    const [isShowingVote, setIsShowingVote] = useState<boolean>(false);
-    const [isProfilePublic, setIsProfilePublic] = useState<boolean>(true);
-    const [isLimitedToUndredVotes, setIsLimitedToUndredVotes] = useState<boolean>(false);
-    const [allowedNotifications, setAllowedNotifications] = useState<boolean>(false);
+    const [isShowingVote, setIsShowingVote] = useState<boolean>();
+    const [isProfilePublic, setIsProfilePublic] = useState<boolean>();
+    const [isLimitedToUndredVotes, setIsLimitedToUndredVotes] = useState<boolean>();
+    const [allowedNotifications, setAllowedNotifications] = useState<boolean>();
     const [isLightTheme, setIsLightTheme] = useState<boolean>(colorScheme === 'light');
     const [isAutoTheme, setIsAutoTheme] = useState<boolean>(themeMode === 'auto');
+
+    useEffect(() => {
+        const _settings = getSettings();
+        setSettings(_settings);
+
+        setIsLimitedToUndredVotes(_settings.democracy.limitVotes);
+        setIsShowingVote(_settings.democracy.shuwMyVote);
+        setIsProfilePublic(_settings.social.public);
+    })
 
     const handleThemeChange = () => {
         setIsAutoTheme(false);
