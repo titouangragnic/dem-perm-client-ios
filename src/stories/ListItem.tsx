@@ -3,7 +3,8 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, StyleProp, ViewStyle }
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Colors } from '@/constants/theme';
-import { fontFamily } from '@/stories/utils';
+import {fontFamily, Ministere, ministereDomainColors} from '@/stories/utils';
+import {Chip} from "@/stories/Chip";
 
 export interface ListItemProps {
     /** URL de l'image de profil */
@@ -14,6 +15,8 @@ export interface ListItemProps {
     votes: number;
     /** Visibilité du la croix*/
     isDeleteVisible?: boolean;
+    /** Ministère pour lequel l'utilisateur est membre*/
+    ministry?: Ministere;
     /** Fonction au clic sur la carte (optionnelle) */
     onPress?: () => void;
     /** Fonction au clic sur la croix (optionnelle) */
@@ -27,6 +30,7 @@ export const ListItem = ({
                              avatarUrl,
                              username,
                              votes,
+                             ministry,
                              isDeleteVisible,
                              onPress,
                              onRemove,
@@ -60,6 +64,9 @@ export const ListItem = ({
                 <Text style={[styles.votes, { color: highlightColor, fontFamily }]}>
                     {votes} votes
                 </Text>
+                {ministry &&
+                    <Chip size={"small"} label={ministry} backgroundColor={ministereDomainColors[ministry]}/>
+                }
 
                 {isDeleteVisible && (
                     <TouchableOpacity
@@ -102,7 +109,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     rightSection: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center',
         gap: 8,
     },
