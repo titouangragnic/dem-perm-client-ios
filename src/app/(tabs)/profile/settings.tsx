@@ -125,6 +125,7 @@ export default function SettingsScreen() {
             </ThemedView>
         </SafeAreaView>
     );
+
 }
 
 const styles = StyleSheet.create({

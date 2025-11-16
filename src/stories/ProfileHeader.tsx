@@ -28,111 +28,115 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = memo(
         const palette = Colors[colorScheme];
 
         return (
-            <View
-                style={[
-                    styles.card,
-                    { backgroundColor: palette.primary },
-                ]}
-            >
-                <View style={styles.bannerWrapper}>
-                    {bannerUri ? (
-                        <Image
-                            source={{ uri: bannerUri } as ImageSourcePropType}
-                            style={styles.banner}
-                        />
-                    ) : (
-                        <View style={[styles.banner, { backgroundColor: palette.background }]} />
-                    )}
-                </View>
+            <View>
+                <View
+                    style={[
+                        styles.card,
+                        { backgroundColor: palette.primary },
+                    ]}
+                >
+                    <View style={styles.bannerWrapper}>
+                        {bannerUri ? (
+                            <Image
+                                source={{ uri: bannerUri } as ImageSourcePropType}
+                                style={styles.banner}
+                            />
+                        ) : (
+                            <View style={[styles.banner, { backgroundColor: palette.background }]} />
+                        )}
+                    </View>
 
-                <Button
-                    backgroundColor="background"
-                    icon="settings"
-                    label=""
-                    onPress={onPressSettings}
-                    style={styles.settingsButton}
-                />
-
-                <View style={styles.content}>
-                    <View style={styles.topRow}>
-                        <View style={[styles.avatarWrapper, { backgroundColor: palette.background }]}>
-                            {avatarUri ? (
-                                <Image
-                                    source={{ uri: avatarUri } as ImageSourcePropType}
-                                    style={styles.avatar}
-                                />
-                            ) : (
-                                <View
+                    <View style={styles.content}>
+                        <View style={styles.topRow}>
+                            <View style={[styles.avatarWrapper, { backgroundColor: palette.background }]}>
+                                {avatarUri ? (
+                                    <Image
+                                        source={{ uri: avatarUri } as ImageSourcePropType}
+                                        style={styles.avatar}
+                                    />
+                                ) : (
+                                    <View
+                                        style={[
+                                            styles.avatar,
+                                            { backgroundColor: palette.highlight1 },
+                                        ]}
+                                    />
+                                )}
+                            </View>
+                            <View style={styles.topRowText}>
+                                <Text
                                     style={[
-                                        styles.avatar,
-                                        { backgroundColor: palette.highlight1 },
+                                        styles.username,
+                                        { color: palette.text, fontFamily },
                                     ]}
+                                    numberOfLines={1}
+                                >
+                                    {username}
+                                </Text>
+
+
+                                <Text
+                                    style={[
+                                        styles.votes,
+                                        { color: palette.highlight1, fontFamily },
+                                    ]}
+                                >
+                                    {votes} Votes
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.buttonsRow}>
+                            <Button
+                                icon="newspaper"
+                                label="Mes votes"
+                                onPress={onPressMyVotes}
+                            />
+                            <View style={styles.buttonsRowRight}>
+                                <Button
+                                    backgroundColor="background"
+                                    icon="create"
+                                    label="Modifier"
+                                    onPress={onPressModify}
                                 />
-                            )}
+                                <Button
+                                    backgroundColor="background"
+                                    icon="settings"
+                                    label=""
+                                    onPress={onPressSettings}
+                                />
+                            </View>
+
                         </View>
-                        <View style={styles.topRowText}>
-                            <Text
-                                style={[
-                                    styles.username,
-                                    { color: palette.text, fontFamily },
-                                ]}
-                                numberOfLines={1}
-                            >
-                                {username}
-                            </Text>
 
-
-                            <Text
-                                style={[
-                                    styles.votes,
-                                    { color: palette.highlight1, fontFamily },
-                                ]}
-                            >
-                                {votes} Votes
-                            </Text>
-                        </View>
+                        <Text
+                            style={[
+                                styles.description,
+                                { color: palette.text, opacity: 0.9, fontFamily },
+                            ]}
+                            numberOfLines={3}
+                        >
+                            {description}
+                        </Text>
                     </View>
-
-                    <View style={styles.buttonsRow}>
-                        <Button
-                            icon="newspaper"
-                            label="Mes votes"
-                            onPress={onPressMyVotes}
-                        />
-                        <Button
-                            backgroundColor="background"
-                            icon="create"
-                            label="Modifier"
-                            onPress={onPressModify}
-                        />
-                    </View>
-
-                    <Text
-                        style={[
-                            styles.description,
-                            { color: palette.text, opacity: 0.9, fontFamily },
-                        ]}
-                        numberOfLines={3}
-                    >
-                        {description}
-                    </Text>
                 </View>
             </View>
+
         );
     }
 );
 
 const styles = StyleSheet.create({
     card: {
-        overflow: 'hidden',
         borderTopLeftRadius: Spacing.borderRadius,
         borderTopRightRadius: Spacing.borderRadius,
+        overflow: "visible"
     },
     bannerWrapper: {
         height: BANNER_HEIGHT,
-        overflow: 'hidden',
         borderTopLeftRadius: Spacing.borderRadius,
         borderTopRightRadius: Spacing.borderRadius,
+        overflow: "visible"
     },
     banner: {
         width: '100%',
@@ -196,9 +200,8 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         justifyContent: 'center',
     },
-    settingsButton: {
-        position: 'absolute',
-        top: -BANNER_HEIGHT / 2,
-        right: 20,
+    buttonsRowRight: {
+        flexDirection: 'row',
+        gap: 10
     }
 });
