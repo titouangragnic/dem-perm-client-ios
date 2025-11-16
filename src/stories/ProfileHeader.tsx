@@ -3,8 +3,8 @@ import {Image, ImageSourcePropType, StyleSheet, Text, View} from 'react-native';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { fontFamily } from '@/stories/utils';
-import { Button } from './Button';
-import {SafeAreaView} from "react-native-safe-area-context";
+import {Button} from "@/stories/Button";
+
 
 export type ProfileHeaderProps = {
     username: string;
@@ -34,15 +34,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = memo(
                     { backgroundColor: palette.primary },
                 ]}
             >
-                <SafeAreaView style={styles.settingsButton}>
-                    <Button
-                        backgroundColor="background"
-                        icon="settings"
-                        label=""
-                        onPress={onPressSettings}
-                    />
-                </SafeAreaView>
-
                 <View style={styles.bannerWrapper}>
                     {bannerUri ? (
                         <Image
@@ -53,6 +44,14 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = memo(
                         <View style={[styles.banner, { backgroundColor: palette.background }]} />
                     )}
                 </View>
+
+                <Button
+                    backgroundColor="background"
+                    icon="settings"
+                    label=""
+                    onPress={onPressSettings}
+                    style={styles.settingsButton}
+                />
 
                 <View style={styles.content}>
                     <View style={styles.topRow}>
@@ -199,7 +198,7 @@ const styles = StyleSheet.create({
     },
     settingsButton: {
         position: 'absolute',
-        top: 0,
-        right: 0
+        top: -BANNER_HEIGHT / 2,
+        right: 20,
     }
 });
