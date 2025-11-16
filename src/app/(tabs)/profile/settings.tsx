@@ -102,7 +102,7 @@ export default function SettingsScreen() {
                         />
                     </ThemedView>
                     <ThemedView style={[styles.settingContainer, {backgroundColor} ]}>
-                        <ThemedText type={"title"}>Théme</ThemedText>
+                        <ThemedText type={"title"}>Thème</ThemedText>
                         <View style={{gap: 10}}>
                             <View style={{alignItems: "center", gap: 5}}>
                                 <ThemedText>Automatique</ThemedText>
@@ -135,7 +135,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderRadius: 16,
         padding: 24,
-        marginInline: 22,
-        marginVertical: 14
+        marginLeft: 8,
+        marginRight: 8,
+        marginBottom: 8,
     },
 });
