@@ -70,10 +70,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 6,
     alignItems: 'center',
+    justifyContent: 'center', // 👈 centrer horizontalement
   },
+
   buttonText: {
     textAlign: 'center',
-    alignItems: "center"
+    alignItems: "center",
   },
   small: {
     paddingVertical: 1,
