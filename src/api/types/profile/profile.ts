@@ -5,5 +5,5 @@ export class Profile {
     user!: SimpleUser;
     voteCount!: number;
     bio!: string;
-    posts!: SimplePost
+    posts!: SimplePost[]
 }

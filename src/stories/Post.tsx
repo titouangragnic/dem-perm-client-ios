@@ -203,7 +203,6 @@ const styles = StyleSheet.create({
     row: {
         position: 'relative',
         paddingRight: Spacing.margin,
-        marginVertical: 6,
     },
     indentBar: {
         position: 'absolute',
