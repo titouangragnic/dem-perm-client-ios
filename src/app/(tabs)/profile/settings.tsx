@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
-import {useThemeContext} from "@/contexts/theme-context";
+import {StyleSheet, View} from 'react-native';
 import {Colors} from "@/constants/theme";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {ThemedText} from "@/components/themed-text";
@@ -8,14 +7,42 @@ import {ThemedView} from "@/components/themed-view";
 import {Toggle} from "@/stories/Toggle";
 import {Button} from "@/stories/Button";
 import {router} from "expo-router";
+import {useTheme} from "@/hooks/use-theme";
 
 export default function SettingsScreen() {
-    const { colorScheme } = useThemeContext();
+    const { themeMode, setThemeMode, colorScheme } = useTheme();
     const backgroundColor = Colors[colorScheme].primary;
     const [isShowingVote, setIsShowingVote] = useState<boolean>(false);
     const [isProfilePublic, setIsProfilePublic] = useState<boolean>(true);
     const [isLimitedToUndredVotes, setIsLimitedToUndredVotes] = useState<boolean>(false);
     const [allowedNotifications, setAllowedNotifications] = useState<boolean>(false);
+    const [isLightTheme, setIsLightTheme] = useState<boolean>(colorScheme === 'light');
+    const [isAutoTheme, setIsAutoTheme] = useState<boolean>(themeMode === 'auto');
+
+    const handleThemeChange = () => {
+        setIsAutoTheme(false);
+
+        setIsLightTheme(prev => {
+            const nextIsLight = !prev;
+            setThemeMode(nextIsLight ? 'light' : 'dark');
+            return nextIsLight;
+        });
+    };
+
+    const handleAutoThemeChange = () => {
+        setIsAutoTheme(prevIsAuto => {
+            const nextIsAuto = !prevIsAuto;
+            if (nextIsAuto) {
+                setThemeMode('auto');
+                setIsLightTheme(colorScheme === 'light');
+            } else {
+                const nextIsLight = colorScheme === 'light';
+                setThemeMode(nextIsLight ? 'light' : 'dark');
+                setIsLightTheme(nextIsLight);
+            }
+            return nextIsAuto;
+        });
+    };
 
     return(
         <SafeAreaView>
@@ -54,13 +81,33 @@ export default function SettingsScreen() {
                             onValueChange={() => {setIsLimitedToUndredVotes(!isLimitedToUndredVotes);}}
                         />
                     </ThemedView>
-                    <ThemedText type={"title"} style={{marginInline: 22, marginTop: 28}}>Notifications</ThemedText>
+                    <ThemedText type={"title"} style={{marginInline: 22, marginTop: 28}}>Autres</ThemedText>
                     <ThemedView style={[styles.settingContainer, {backgroundColor} ]}>
                         <ThemedText type={"title"}>Notifications</ThemedText>
                         <Toggle
                             isEnabled={allowedNotifications}
                             onValueChange={() => {setAllowedNotifications(!allowedNotifications);}}
                         />
+                    </ThemedView>
+                    <ThemedView style={[styles.settingContainer, {backgroundColor} ]}>
+                        <ThemedText type={"title"}>Théme</ThemedText>
+                        <View style={{gap: 10}}>
+                            <View style={{alignItems: "center", gap: 5}}>
+                                <ThemedText>Automatique</ThemedText>
+                                <Toggle
+                                    isEnabled={isAutoTheme}
+                                    onValueChange={handleAutoThemeChange}
+                                />
+                            </View>
+                            <View style={{flexDirection: "row", gap: 5}}>
+                                <ThemedText>🌙</ThemedText>
+                                <Toggle
+                                    isEnabled={isLightTheme}
+                                    onValueChange={handleThemeChange}
+                                />
+                                <ThemedText>☀️</ThemedText>
+                            </View>
+                        </View>
                     </ThemedView>
                 </ThemedView>
             </ThemedView>
