@@ -20,18 +20,19 @@ export default function Settings() {
     return(
         <SafeAreaView>
         <ThemedView>
-            <ThemedView style={{flexDirection:"row"}}>
+            <ThemedView style={{flexDirection:"row", marginVertical: 20}}>
                 <Button
                     backgroundColor="background"
                     icon="chevron-back"
                     label=""
                     onPress={() => {router.back()}}
                     size="large"
+                    style={{position: "absolute"}}
                 />
-                <ThemedText type="screenTitle">Paramètres</ThemedText>
+                <ThemedText type="screenTitle" style={{marginInline: "auto"}}>Paramètres</ThemedText>
             </ThemedView>
             <ThemedView style={{flexDirection:"column"}}>
-                <ThemedText type={"title"} style={{marginInline: 22, marginTop: 22}}>Démocratie</ThemedText>
+                <ThemedText type={"title"} style={{marginInline: 22}}>Démocratie</ThemedText>
                 <ThemedView style={[styles.settingContainer, {backgroundColor} ]}>
                     <ThemedText type={"title"}>Montrer mon vote</ThemedText>
                     <Toggle
