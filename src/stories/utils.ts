@@ -25,50 +25,50 @@ export type iconVariants =
 export const fontFamily : string = 'Inter-Regular, sans-serif';
 
 export type Ministere =
-    | "écologie"
-    | "agriculture"
-    | "transports"
-    | "santé"
-    | "éducation"
-    | "économie"
-    | "finances"
-    | "industrie"
-    | "intérieur"
-    | "sécurité"
-    | "justice"
-    | "culture"
-    | "défense"
-    | "travail"
-    | "recherche"
-    | "enseignement supérieur"
-    | "logement"
-    | "territoires"
-    | "numérique"
-    | "outre-mer"
-    | "affaires étrangères"
-    | "europe";
+    | "Écologie"
+    | "Agriculture"
+    | "Transports"
+    | "Santé"
+    | "Éducation"
+    | "Économie"
+    | "Finances"
+    | "Industrie"
+    | "Intérieur"
+    | "Sécurité"
+    | "Justice"
+    | "Culture"
+    | "Défense"
+    | "Travail"
+    | "Recherche"
+    | "Enseignement supérieur"
+    | "Logement"
+    | "Territoires"
+    | "Numérique"
+    | "Outre-mer"
+    | "Affaires étrangères"
+    | "Europe";
 
 export const ministereDomainColors: Record<Ministere, string> = {
-    "écologie": "#A8E6CF",
-    "agriculture": "#91D18B",
-    "transports": "#FF8B94",
-    "santé": "#A0CED9",
-    "éducation": "#AED9E0",
-    "économie": "#C9A0DC",
-    "finances": "#C3B091",
-    "industrie": "#B2B7FF",
-    "intérieur": "#9AC3FF",
-    "sécurité": "#7FA6E6",
-    "justice": "#B0BEC5",
-    "culture": "#D7A9E3",
-    "défense": "#B0B7C3",
-    "travail": "#FFBC99",
-    "recherche": "#C7B5E6",
-    "enseignement supérieur": "#B7C6F6",
-    "logement": "#D0B8A8",
-    "territoires": "#A7E3DD",
-    "numérique": "#9FE3E8",
-    "outre-mer": "#9DD7E0",
-    "affaires étrangères": "#9EBBE6",
-    "europe": "#A7B8E9"
+    "Écologie": "#A8E6CF",
+    "Agriculture": "#91D18B",
+    "Transports": "#FF8B94",
+    "Santé": "#A0CED9",
+    "Éducation": "#AED9E0",
+    "Économie": "#C9A0DC",
+    "Finances": "#C3B091",
+    "Industrie": "#B2B7FF",
+    "Intérieur": "#9AC3FF",
+    "Sécurité": "#7FA6E6",
+    "Justice": "#B0BEC5",
+    "Culture": "#D7A9E3",
+    "Défense": "#B0B7C3",
+    "Travail": "#FFBC99",
+    "Recherche": "#C7B5E6",
+    "Enseignement supérieur": "#B7C6F6",
+    "Logement": "#D0B8A8",
+    "Territoires": "#A7E3DD",
+    "Numérique": "#9FE3E8",
+    "Outre-mer": "#9DD7E0",
+    "Affaires étrangères": "#9EBBE6",
+    "Europe": "#A7B8E9"
 }
