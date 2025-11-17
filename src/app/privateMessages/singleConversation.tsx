@@ -1,30 +1,159 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { Link } from 'expo-router';
+import { useState, useEffect, useRef } from 'react';
+import { StyleSheet, TouchableOpacity, View, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors, Spacing } from '@/constants/theme';
-import { ThemeDemo } from '@/components/theme-demo';
+import { Colors, Spacing, Typography } from '@/constants/theme';
+import { getChat } from '@/api/mock/functions';
+import { Message } from '@/api/types/chat/message';
+import { ChatBubble } from '@/stories/ChatBubble';
+import { InputBar } from '@/stories/InputBar';
+import { useTheme } from '@/hooks/use-theme';
 
 export default function SingleConversationScreen() {
+    const router = useRouter();
+    const { colorScheme } = useTheme();
+    const insets = useSafeAreaInsets();
+    const params = useLocalSearchParams();
+    const flatListRef = useRef<FlatList>(null);
+    
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [inputText, setInputText] = useState('');
+    const [userName, setUserName] = useState('');
+
+    useEffect(() => {
+        const chatId = params.id ? parseInt(params.id as string) : 1;
+        const chatData = getChat(chatId);
+        if (chatData) {
+            setMessages(chatData.messages);
+            setUserName(chatData.chat.user.displayName);
+        }
+    }, [params.id]);
+
+    const handleSendMessage = () => {
+        if (inputText.trim()) {
+            const newMessage: Message = {
+                author: {
+                    id: 999,
+                    displayName: 'Moi',
+                    profilePictureUrl: '',
+                    bannerUrl: '',
+                    voteCount: 0,
+                },
+                content: inputText.trim(),
+            };
+            setMessages([...messages, newMessage]);
+            setInputText('');
+            
+            // Scroll vers le bas après l'ajout du message
+            setTimeout(() => {
+                flatListRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+        }
+    };
+
+    const formatTime = () => {
+        const now = new Date();
+        return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    };
+
+    const renderMessage = ({ item, index }: { item: Message; index: number }) => {
+        const isOwn = item.author.displayName === 'Moi';
+        return (
+            <ChatBubble
+                text={item.content}
+                isOwn={isOwn}
+                time={formatTime()}
+            />
+        );
+    };
+
     return (
-        <ParallaxScrollView
-            headerBackgroundColor={{ light: Colors.light.primary, dark: Colors.dark.primary }}>
-            <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title">Bla bla bla</ThemedText>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+        >
+            <ThemedView style={styles.container}>
+                <View style={[
+                    styles.header,
+                    { 
+                        backgroundColor: colorScheme === 'light' ? Colors.light.background : Colors.dark.background,
+                        paddingTop: insets.top + Spacing.padding
+                    }
+                ]}>
+                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                        <IconSymbol
+                            name="chevron.left"
+                            size={24}
+                            color={colorScheme === 'light' ? Colors.light.text : Colors.dark.text}
+                        />
+                    </TouchableOpacity>
+                    <ThemedText style={styles.headerTitle}>{userName}</ThemedText>
+                    <View style={styles.placeholder} />
+                </View>
+
+                <FlatList
+                    ref={flatListRef}
+                    data={messages}
+                    renderItem={renderMessage}
+                    keyExtractor={(item, index) => index.toString()}
+                    style={styles.messageList}
+                    contentContainerStyle={styles.messageListContent}
+                    inverted={false}
+                    onContentSizeChange={() => setTimeout(() => {
+                flatListRef.current?.scrollToEnd({ animated: true });
+            }, 100)}
+                />
+
+                <View style={styles.inputContainer}>
+                    <InputBar
+                        placeholder="Envoyer un message ..."
+                        value={inputText}
+                        onChangeText={setInputText}
+                        onActionPress={handleSendMessage}
+                        rightIcon="paper-plane"
+                        backgroundColor="primary"
+                    />
+                </View>
             </ThemedView>
-        </ParallaxScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    titleContainer: {
+    container: {
+        flex: 1,
+    },
+    header: {
         flexDirection: 'row',
-        gap: Spacing.margin,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: Spacing.padding,
+        paddingBottom: Spacing.padding,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: Typography.sizes.screenTitle,
+        fontWeight: Typography.weights.semiBold,
+    },
+    placeholder: {
+        width: 40,
+    },
+    messageList: {
+        flex: 1,
+    },
+    messageListContent: {
+        paddingVertical: Spacing.margin,
+    },
+    inputContainer: {
+        paddingBottom: Spacing.margin,
     },
 });

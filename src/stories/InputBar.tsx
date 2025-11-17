@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, TextInput, View, TouchableOpacity, TextInputProps } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeContext } from '@/contexts/theme-context';
@@ -41,6 +41,10 @@ export const InputBar = ({
                          }: InputBarProps) => {
     const { colorScheme } = useThemeContext();
     const [text, setText] = useState(propValue || '');
+
+    useEffect(() => {
+        setText(propValue || '');
+    }, [propValue]);
 
     const textColor =
         backgroundColor === 'primary' || backgroundColor === 'background'
