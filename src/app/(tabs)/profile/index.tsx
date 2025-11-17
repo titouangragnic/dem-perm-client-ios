@@ -1,34 +1,94 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
+import React, {useEffect} from 'react';
+import {ScrollView, StyleSheet} from 'react-native';
+import {useRouter} from 'expo-router';
 
-import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import {ProfileHeader} from "@/stories/ProfileHeader";
+import {Profile} from "@/api/types/profile/profile";
+import {getMyProfile} from "@/api/mock/functions";
+import {Post} from "@/stories/Post";
+import {Button} from "@/stories/Button";
 
 export default function ProfileScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="screenTitle">Profil</ThemedText>
 
-      <Link href="/profile/settings">
-        <ThemedText type="link">Paramètres</ThemedText>
-      </Link>
+    const [profile, setProfile] = React.useState<Profile>();
 
-      <Link href="/profile/votes">
-        <ThemedText type="link">Récapitulatif des votes</ThemedText>
-      </Link>
-      
-      <Link href="/profile/create-post">
-        <ThemedText type="link">Créer un post</ThemedText>
-      </Link>
-    </ThemedView>
-  );
+    const router = useRouter();
+
+    const handleMyVotesPress = () => {
+        router.navigate("/profile/votes");
+    }
+
+    const handleModifyPress = () => {
+
+    }
+
+    const handleSettingsPress = () => {
+        router.navigate("/profile/settings");
+    }
+
+    const handleNewPostPress = () => {
+        router.navigate("/profile/create-post");
+    }
+
+    useEffect(() => {
+        const profile : Profile|undefined = getMyProfile();
+        if (profile)
+            setProfile(profile);
+    }, [])
+
+    if (!profile) {
+        // TODO: Create error screen
+        return <></>
+    }
+
+    return (
+        <>
+            <ThemedView>
+                <ProfileHeader username={profile.user.displayName}
+                               description={profile.bio}
+                               votes={profile.voteCount}
+
+                               bannerUri={profile.user.bannerUrl}
+                               avatarUri={profile.user.profilePictureUrl}
+
+                               onPressModify={handleModifyPress}
+                               onPressMyVotes={handleMyVotesPress}
+                               onPressSettings={handleSettingsPress}
+                />
+            </ThemedView>
+
+            <ThemedView style={styles.container}>
+                <ScrollView>
+
+                    <Button
+                        icon="add"
+                        label="Nouveau post"
+                        onPress={handleNewPostPress}
+                        style={styles.createPostButton}
+                    />
+                    {
+                        profile.posts.map(post => {
+                            return (
+                                <Post username={post.author.displayName}
+                                      date={post.createdAt}
+                                      text={post.content}
+                                      key={post.id}
+                                />
+                            )
+                        })
+                    }
+                </ScrollView>
+            </ThemedView>
+        </>
+      );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    gap: 16,
-    padding: 16,
-  },
+    container: {
+        flex: 1,
+    },
+    createPostButton: {
+        margin: 8
+    }
 });

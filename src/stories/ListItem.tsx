@@ -3,7 +3,8 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, StyleProp, ViewStyle }
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Colors } from '@/constants/theme';
-import { fontFamily } from '@/stories/utils';
+import {fontFamily, Ministere, ministereDomainColors} from '@/stories/utils';
+import {Chip} from "@/stories/Chip";
 
 export interface ListItemProps {
     /** URL de l'image de profil */
@@ -14,6 +15,10 @@ export interface ListItemProps {
     votes: number;
     /** Visibilité du la croix*/
     isDeleteVisible?: boolean;
+    /** Ministère pour lequel l'utilisateur est membre*/
+    ministry?: Ministere;
+    /** Est ce qu'il est underlined ? */
+    isUnderlined?: boolean;
     /** Fonction au clic sur la carte (optionnelle) */
     onPress?: () => void;
     /** Fonction au clic sur la croix (optionnelle) */
@@ -27,16 +32,18 @@ export const ListItem = ({
                              avatarUrl,
                              username,
                              votes,
+                             ministry,
+                             isUnderlined = false,
                              isDeleteVisible,
                              onPress,
                              onRemove,
                              style,
                          }: ListItemProps) => {
     const { colorScheme } = useThemeContext();
-    const backgroundColor = Colors[colorScheme].background;
+    const backgroundColor = isUnderlined ? Colors[colorScheme].background : Colors[colorScheme].primary;
     const textColor = Colors[colorScheme].text;
     const highlightColor = Colors[colorScheme].highlight1;
-    const borderColor = Colors[colorScheme].highlight1;
+    const borderColor = isUnderlined ? Colors[colorScheme].highlight1 : Colors[colorScheme].primary;
 
     return (
         <TouchableOpacity
@@ -57,9 +64,14 @@ export const ListItem = ({
 
             {/* Partie droite : Votes + icône de suppression */}
             <View style={styles.rightSection}>
-                <Text style={[styles.votes, { color: highlightColor, fontFamily }]}>
-                    {votes} votes
-                </Text>
+                <View style={{flexDirection:"column", alignItems: 'center'}}>
+                    <Text style={[styles.votes, { color: highlightColor, fontFamily }]}>
+                        {votes} votes
+                    </Text>
+                    {ministry &&
+                        <Chip size={"small"} label={ministry} backgroundColor={ministereDomainColors[ministry]}/>
+                    }
+                </View>
 
                 {isDeleteVisible && (
                     <TouchableOpacity
