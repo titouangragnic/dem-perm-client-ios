@@ -22,7 +22,7 @@ export interface ButtonProps {
 /** Primary UI component for user interaction */
 export const Button = ({
   size = 'medium',
-  backgroundColor = "highlight1",
+    backgroundColor = "highlight1",
   label,
   icon,
   style,
@@ -72,8 +72,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',   // horizontally center text + icon
     alignItems: 'center',
   },
+
   buttonText: {
     textAlign: 'center',
+    alignItems: "center",
   },
   small: {
     paddingVertical: 1,

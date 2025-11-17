@@ -415,37 +415,37 @@ export const profiles: Profile[] = [
         user: U(1),
         voteCount: 128,
         bio: "Ingénieure énergie. Intérêt : solaire, rail, culture scientifique.",
-        posts: posts.find(p => p.author.id === 1)!,
+        posts: [posts.find(p => p.author.id === 1)!],
     },
     {
         user: U(2),
         voteCount: 96,
         bio: "Aimé par tous, adulé par certains. Long live the traitors of MTI.",
-        posts: posts.find(p => p.author.id === 2)!,
+        posts: [posts.find(p => p.author.id === 2)!],
     },
     {
         user: U(3),
         voteCount: 74,
         bio: "Journalisme & politiques culturelles.",
-        posts: posts.find(p => p.author.id === 6)!,
+        posts: [posts.find(p => p.author.id === 6)!],
     },
     {
         user: U(4),
         voteCount: 128,
         bio: "Ingénieure énergie. Intérêt : solaire, rail, culture scientifique.",
-        posts: posts.find(p => p.author.id === 1)!,
+        posts: [posts.find(p => p.author.id === 1)!],
     },
     {
         user: U(5),
         voteCount: 96,
         bio: "Dev & citoyen curieux. Intérêt : mobilité, open data, audio.",
-        posts: posts.find(p => p.author.id === 2)!,
+        posts: [posts.find(p => p.author.id === 2)!],
     },
     {
         user: U(6),
         voteCount: 74,
         bio: "Journalisme & politiques culturelles.",
-        posts: posts.find(p => p.author.id === 6)!,
+        posts: [posts.find(p => p.author.id === 6)!],
     },
 ];
 

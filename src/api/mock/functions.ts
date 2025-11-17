@@ -57,6 +57,10 @@ export const getMyProfile = function () {
     return db.profiles.find(profile => profile.user.id == 2);
 }
 
+export const getMyVotes = function () {
+    return db.myVotes;
+}
+
 export const getProfile = function (id: number) {
     return db.profiles.find(profile => profile.user.id == id);
 }
