@@ -99,7 +99,7 @@ export default function CreatePostScreen() {
                         <ThemedText style={styles.label}>
                             Titre du poste
                         </ThemedText>
-                        
+
                         <InputBar
                             placeholder="Titre ..."
                             value={title}

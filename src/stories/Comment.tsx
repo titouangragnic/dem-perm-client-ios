@@ -42,7 +42,6 @@ const INDENT_WIDTH = 32;
 const LINE_WIDTH = 2;
 const CORNER_RADIUS = 8;
 
-// Fonction pour calculer le temps relatif
 const getRelativeTime = (date: Date): string => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
