@@ -1,3 +1,7 @@
+import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useThemeContext } from '@/contexts/theme-context';
+import { fontFamily } from '@/stories/utils';
+import { Ionicons } from '@expo/vector-icons';
 import React, { memo, useMemo } from 'react';
 import {
     Image,
@@ -7,10 +11,6 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useThemeContext } from '@/contexts/theme-context';
-import { Colors, Spacing, Typography } from '@/constants/theme';
-import { fontFamily } from '@/stories/utils';
 
 export type PostProps = {
     username: string;
@@ -35,6 +35,7 @@ export type PostProps = {
     onPressRepost?: () => void;
     onPressShare?: () => void;
     onPressUser?: () => void;
+    onPress?: () => void;
 };
 
 const AVATAR_SIZE = 32;
@@ -61,6 +62,7 @@ export const Post: React.FC<PostProps> = memo(
          onPressRepost,
          onPressShare,
          onPressUser,
+         onPress,
      }) => {
         const { colorScheme } = useThemeContext();
         const palette = Colors[colorScheme];
@@ -89,7 +91,12 @@ export const Post: React.FC<PostProps> = memo(
         }, [level]);
 
         return (
-            <View style={[styles.row, { paddingLeft }]}>
+            <TouchableOpacity 
+                style={[styles.row, { paddingLeft }]} 
+                onPress={onPress}
+                activeOpacity={onPress ? 0.7 : 1}
+                disabled={!onPress}
+            >
                 {level > 0 && (
                     <View
                         style={[
@@ -194,7 +201,7 @@ export const Post: React.FC<PostProps> = memo(
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     }
 );

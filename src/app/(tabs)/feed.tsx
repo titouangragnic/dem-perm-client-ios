@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing } from '@/constants/theme';
 import { getFeed } from '@/api/mock/functions';
 import { SimplePost } from '@/api/types/common/simple-post';
-import { Post } from '@/stories/Post';
-import { Button } from '@/stories/Button';
+import { Colors, Spacing } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
+import { Button } from '@/stories/Button';
+import { Logo } from '@/stories/Logo';
+import { Post } from '@/stories/Post';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function FeedScreen() {
     const [posts, setPosts] = useState<SimplePost[]>([]);
@@ -31,9 +32,10 @@ export default function FeedScreen() {
     return (
         <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
             <View style={[styles.header, { paddingTop: insets.top + Spacing.padding }]}>
-                <View style={styles.logoPlaceholder}>
-                    {/* Logo à venir */}
-                </View>
+                <Logo 
+                    height={60}
+                    width={60}
+                />
                 <Button
                     icon="chatbubbles"
                     onPress={() => router.push('/privateMessages/conversationsList')}
@@ -57,6 +59,7 @@ export default function FeedScreen() {
                         onPressComment={() => {}}
                         onPressRepost={() => {}}
                         onPressShare={() => {}}
+                        onPress={() => router.push(`/(tabs)/postDetail?id=${item.id}`)}
                     />
                 )}
                 contentContainerStyle={styles.listContent}
@@ -75,10 +78,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: Spacing.margin,
         paddingBottom: Spacing.padding,
-    },
-    logoPlaceholder: {
-        width: 40,
-        height: 40,
     },
     listContent: {
         paddingBottom: Spacing.margin,
