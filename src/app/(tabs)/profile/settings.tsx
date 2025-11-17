@@ -58,7 +58,7 @@ export default function SettingsScreen() {
 
     return(
         <SafeAreaView>
-            <ThemedView>
+            <ThemedView style={styles.container}>
                 <ThemedView style={{flexDirection:"row", marginVertical: 20}}>
                     <Button
                         backgroundColor="background"
@@ -139,4 +139,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
         marginBottom: 8,
     },
+    container: {
+        height: "100%"
+    }
 });

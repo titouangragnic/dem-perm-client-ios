@@ -22,7 +22,7 @@ export default function VotesScreen() {
 
     return(
         <SafeAreaView>
-            <ThemedView>
+            <ThemedView style={styles.container}>
                 <ThemedView style={{flexDirection:"row", marginVertical: 20}}>
                     <Button
                         backgroundColor="background"
@@ -53,8 +53,6 @@ export default function VotesScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    gap: 16,
-    padding: 16,
+    height: "100%"
   },
 });
