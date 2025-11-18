@@ -48,7 +48,13 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="feed" />
       <Tabs.Screen name="research" />
-      <Tabs.Screen name="democracy" />
+        <Tabs.Screen
+          name="democracy"
+          options={{
+            title: 'Démocratie',
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="newspaper.fill" color={color} />,
+          }}
+        />
       <Tabs.Screen name="forums" />
       <Tabs.Screen name="profile" />
     </Tabs>
