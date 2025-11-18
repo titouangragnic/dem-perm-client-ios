@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Button } from '@/stories/Button';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { getChat } from '@/api/mock/functions';
 import { Message } from '@/api/types/chat/message';
@@ -84,15 +84,15 @@ export default function SingleConversationScreen() {
                         paddingTop: insets.top + Spacing.padding
                     }
                 ]}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                        <IconSymbol
-                            name="chevron.left"
-                            size={24}
-                            color={colorScheme === 'light' ? Colors.light.text : Colors.dark.text}
-                        />
-                    </TouchableOpacity>
+                    <Button
+                        backgroundColor="background"
+                        icon="chevron-back"
+                        label=""
+                        onPress={() => router.back()}
+                        size="large"
+                    />
                     <ThemedText style={styles.headerTitle}>{userName}</ThemedText>
-                    <View style={styles.placeholder} />
+                    <View style={styles.headerPlaceholder} />
                 </View>
 
                 <FlatList
@@ -134,18 +134,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.padding,
         paddingBottom: Spacing.padding,
     },
-    backButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
+    headerPlaceholder: {
+        width: 48,
     },
     headerTitle: {
         fontSize: Typography.sizes.screenTitle,
         fontWeight: Typography.weights.semiBold,
-    },
-    placeholder: {
-        width: 40,
+        flex: 1,
+        textAlign: 'center',
     },
     messageList: {
         flex: 1,
@@ -154,6 +150,7 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.margin,
     },
     inputContainer: {
+        paddingHorizontal: Spacing.padding,
         paddingBottom: Spacing.margin,
     },
 });

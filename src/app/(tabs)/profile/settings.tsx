@@ -57,7 +57,7 @@ export default function SettingsScreen() {
     };
 
     return(
-        <SafeAreaView>
+        <SafeAreaView style={{ backgroundColor: Colors[colorScheme].background, flex: 1 }}>
             <ThemedView style={styles.container}>
                 <ThemedView style={{flexDirection:"row", marginVertical: 20}}>
                     <Button

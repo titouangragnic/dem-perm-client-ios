@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConversationListItem } from '@/stories/ConversationListItem';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Button } from '@/stories/Button';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { getChats } from '@/api/mock/functions';
 import { SimpleChat } from '@/api/types/chat/simple-chat';
@@ -34,13 +34,13 @@ export default function ConversationsListScreen() {
                     paddingTop: insets.top + Spacing.padding
                 }
             ]}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.leftButton}>
-                    <IconSymbol
-                        name="chevron.left"
-                        size={24}
-                        color={colorScheme === 'light' ? Colors.light.text : Colors.dark.text}
-                    />
-                </TouchableOpacity>
+                <Button
+                    backgroundColor="background"
+                    icon="chevron-back"
+                    label=""
+                    onPress={() => router.back()}
+                    size="large"
+                />
                 <ThemedText style={styles.headerTitle}>Messages privés</ThemedText>
                 <View style={styles.backButton} />
             </View>

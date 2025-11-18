@@ -62,6 +62,7 @@ export default function FeedScreen() {
                         onPress={() => router.push(`/(tabs)/postDetail?id=${item.id}`)}
                     />
                 )}
+                ItemSeparatorComponent={() => <View style={{ height: Spacing.margin }} />}
                 contentContainerStyle={styles.listContent}
             />
         </View>
