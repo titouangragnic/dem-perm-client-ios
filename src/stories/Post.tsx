@@ -44,8 +44,8 @@ const IMAGE_HEIGHT_GRID = 160;
 
 const INDENT_WIDTH = 20;
 const BAR_WIDTH = 1;
-const BAR_GAP_AFTER = 4;
-const BAR_EXTEND = 6;
+const BAR_GAP_AFTER = Spacing.margin / 2; // 4px
+const BAR_EXTEND = Spacing.margin / 2; // 4px
 
 export const Post: React.FC<PostProps> = memo(
     ({

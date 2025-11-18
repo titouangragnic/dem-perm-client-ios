@@ -137,21 +137,25 @@ export default function PostDetailScreen() {
                 data={flatComments}
                 keyExtractor={(item) => item.commentId.toString()}
                 ListHeaderComponent={
-                    <Post
-                        username={fullPost.post.author.displayName}
-                        avatarUri={fullPost.post.author.profilePictureUrl}
-                        date={formatDate(fullPost.post.createdAt)}
-                        text={fullPost.post.content}
-                        images={fullPost.post.medias.map((m) => m.mediaUrl)}
-                        likeCount={fullPost.post.likeCount}
-                        commentCount={fullPost.post.commentCount}
-                        level={0}
-                        onPressLike={() => {}}
-                        onPressComment={() => {}}
-                        onPressRepost={() => {}}
-                        onPressShare={() => {}}
-                    />
+                    <>
+                        <Post
+                            username={fullPost.post.author.displayName}
+                            avatarUri={fullPost.post.author.profilePictureUrl}
+                            date={formatDate(fullPost.post.createdAt)}
+                            text={fullPost.post.content}
+                            images={fullPost.post.medias.map((m) => m.mediaUrl)}
+                            likeCount={fullPost.post.likeCount}
+                            commentCount={fullPost.post.commentCount}
+                            level={0}
+                            onPressLike={() => {}}
+                            onPressComment={() => {}}
+                            onPressRepost={() => {}}
+                            onPressShare={() => {}}
+                        />
+                        <View style={styles.postCommentSeparator} />
+                    </>
                 }
+                ItemSeparatorComponent={() => <View style={styles.commentSeparator} />}
                 renderItem={({ item }) => (
                     <Post
                         username={item.author.displayName}
@@ -196,6 +200,12 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingBottom: Spacing.margin,
+    },
+    postCommentSeparator: {
+        height: Spacing.margin,
+    },
+    commentSeparator: {
+        height: Spacing.margin,
     },
     emptyContainer: {
         flex: 1,

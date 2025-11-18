@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '@/constants/theme';
+import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type TabKey = 'actualites' | 'classement' | 'retenus';
 
@@ -26,11 +26,9 @@ export function DemocracyHeader({ activeTab, onTabChange }: DemocracyHeaderProps
             styles.headerContainer,
             { 
                 backgroundColor: Colors[colorScheme].background,
-                paddingTop: insets.top 
+                paddingTop: insets.top + Spacing.padding
             }
         ]}>
-            {/* Dynamic Island - Optional black pill */}
-            <View style={styles.dynamicIsland} />
 
             {/* Segmented Control */}
             <View style={styles.segmentedControlContainer}>
@@ -65,7 +63,7 @@ export function DemocracyHeader({ activeTab, onTabChange }: DemocracyHeaderProps
 
 const styles = StyleSheet.create({
     headerContainer: {
-        paddingBottom: 16,
+        paddingBottom: Spacing.padding,
     },
     dynamicIsland: {
         alignSelf: 'center',
@@ -73,15 +71,15 @@ const styles = StyleSheet.create({
         height: 37,
         backgroundColor: '#000000',
         borderRadius: 20,
-        marginTop: 8,
+        marginTop: Spacing.margin,
         marginBottom: 12,
     },
     segmentedControlContainer: {
-        paddingHorizontal: 16,
+        paddingHorizontal: Spacing.padding,
     },
     segmentedControl: {
         flexDirection: 'row',
-        borderRadius: 14,
+        borderRadius: Spacing.borderRadius,
         padding: 4,
         gap: 4,
     },
@@ -94,8 +92,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     tabText: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: Typography.sizes.general,
+        fontWeight: Typography.weights.semiBold,
     },
     tabTextActive: {
         color: '#FFFFFF',
