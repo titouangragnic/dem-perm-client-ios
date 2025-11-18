@@ -1,5 +1,10 @@
 name: Tag → PR vers repo principal (iOS)
 
+permissions:
+  contents: read
+  pull-requests: write
+  packages: write
+
 on:
   push:
     tags:
