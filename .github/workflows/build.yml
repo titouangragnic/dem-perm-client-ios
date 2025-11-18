@@ -1,5 +1,9 @@
 name: Build & Push Docker Image (React Native Web + NGINX)
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches: [ "main" ]
