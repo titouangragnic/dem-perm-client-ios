@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read   # pour checkout du repo courant
+      packages: write
       # PR et push se font via PAT, pas via GITHUB_TOKEN
 
     steps:
