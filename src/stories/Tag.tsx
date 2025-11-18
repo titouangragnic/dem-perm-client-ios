@@ -52,11 +52,10 @@ export const Tag = ({
     const sizeStyle = styles[size];
     const textSizeStyle = textSizeStyles[size];
 
-    // ✅ On récupère les vraies couleurs depuis le thème
-    const baseColorValue = Colors[colorScheme][baseColor];
-    const activeColorValue = Colors[colorScheme][activeColor];
-
-    const currentColor = isActive ? activeColorValue : baseColorValue;
+    // ✅ On utilise tabIconSelected pour la sélection et tabIconDefault pour la non-sélection
+    const currentColor = isActive 
+        ? Colors[colorScheme].tabIconSelected 
+        : Colors[colorScheme].tabIconDefault;
 
     let iconSize = 15;
     if (size === 'small') iconSize = 12;

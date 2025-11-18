@@ -10,9 +10,12 @@ import {MyVotes} from "@/api/types/profile/my-votes";
 import {getMyVotes} from "@/api/mock/functions";
 import {ListItem} from "@/stories/ListItem";
 import {Ministere} from "@/stories/utils";
+import { Colors } from '@/constants/theme';
+import { useThemeContext } from '@/contexts/theme-context';
 
 export default function VotesScreen() {
     const [myVotes, setMyVotes] = useState<MyVotes>()
+    const { colorScheme } = useThemeContext();
     const hardcodedDomains : Ministere[]= ["Culture", "Écologie", "Enseignement supérieur", "Défense", "Europe", "Transports"]; //FIXME with the right domains
 
     useEffect(() => {
@@ -21,7 +24,7 @@ export default function VotesScreen() {
     })
 
     return(
-        <SafeAreaView>
+        <SafeAreaView style={{ backgroundColor: Colors[colorScheme].background, flex: 1 }}>
             <ThemedView style={styles.container}>
                 <ThemedView style={{flexDirection:"row", marginVertical: 20}}>
                     <Button

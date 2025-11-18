@@ -1,51 +1,87 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { Link } from 'expo-router';
-import { ThemedText } from '@/components/themed-text';
+import { getFavorites } from '@/api/mock/functions';
+import { SimpleUser } from '@/api/types/common/simple-user';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { ThemedText } from '@/components/themed-text';
+import { DemocracyHeader } from '@/components/democracy-header';
 import { Colors, Spacing } from '@/constants/theme';
-import { ThemeDemo } from '@/components/theme-demo';
+import { useThemeContext } from '@/contexts/theme-context';
+import { ListItem } from '@/stories/ListItem';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+
+type TabKey = 'actualites' | 'classement' | 'retenus';
 
 export default function DemocracyRetainedScreen() {
+    const [favorites, setFavorites] = useState<SimpleUser[]>([]);
+    const router = useRouter();
+    const { colorScheme } = useThemeContext();
+
+    useEffect(() => {
+        const favUsers = getFavorites();
+        setFavorites(favUsers);
+    }, []);
+
+    const handleTabChange = (tab: TabKey) => {
+        if (tab === 'actualites') {
+            router.push('/democracy/democracyNews');
+        } else if (tab === 'classement') {
+            router.push('/democracy/democracyRanking');
+        }
+    };
+
+    const handleRemove = (id: number) => {
+        setFavorites(favorites.filter(user => user.id !== id));
+    };
+
     return (
-        <ParallaxScrollView
-            headerBackgroundColor={{ light: Colors.light.primary, dark: Colors.dark.primary }}>
-            <ThemedView style={styles.titleContainer}>
-                <ThemedText type="screenTitle">Les profils retenus</ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.navContainer}>
-            <ThemedView style={styles.titleContainer}>
-                <Link href="/democracy/democracyNews">
-                    <ThemedText type="link">Actualités</ThemedText>
-                </Link>
-            </ThemedView>
-            <ThemedView style={styles.titleContainer}>
-                <Link href="/democracy/democracyRanking">
-                    <ThemedText type="link">Classement</ThemedText>
-                </Link>
-            </ThemedView>
-            <ThemedView style={styles.titleContainer}>
-                <Link href="/democracy/democracyRetained">
-                    <ThemedText type="link">Retenus</ThemedText>
-                </Link>
-            </ThemedView>
-            </ThemedView>
-        </ParallaxScrollView>
+        <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
+            <FlatList
+                data={favorites}
+                keyExtractor={(item) => item.id.toString()}
+                ListHeaderComponent={
+                    <DemocracyHeader 
+                        activeTab="retenus" 
+                        onTabChange={handleTabChange}
+                    />
+                }
+                stickyHeaderIndices={[0]}
+                renderItem={({ item }) => (
+                    <ListItem
+                        avatarUrl={item.profilePictureUrl}
+                        username={item.displayName}
+                        votes={item.voteCount}
+                        isDeleteVisible
+                        onPress={() => {}}
+                        onRemove={() => handleRemove(item.id)}
+                    />
+                )}
+                ItemSeparatorComponent={() => <View style={{ height: Spacing.margin / 2 }} />}
+                contentContainerStyle={styles.listContent}
+                ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                        <ThemedText style={styles.emptyText}>Aucun profil retenu</ThemedText>
+                    </View>
+                }
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    titleContainer: {
-        flexDirection: 'row',
-        gap: Spacing.margin,
+    container: {
+        flex: 1,
     },
-    navContainer: {
-        flexDirection: 'row',
-        gap: Spacing.margin,
+    listContent: {
+        paddingHorizontal: Spacing.margin,
+        paddingBottom: Spacing.margin,
+    },
+    emptyContainer: {
+        padding: Spacing.padding * 2,
+        alignItems: 'center',
+    },
+    emptyText: {
+        fontSize: 16,
+        opacity: 0.6,
     },
 });

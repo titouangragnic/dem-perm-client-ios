@@ -1,52 +1,85 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { Link } from 'expo-router';
-import { ThemedText } from '@/components/themed-text';
+import { getNews } from '@/api/mock/functions';
+import { SimplePost } from '@/api/types/common/simple-post';
 import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { DemocracyHeader } from '@/components/democracy-header';
 import { Colors, Spacing } from '@/constants/theme';
-import { ThemeDemo } from '@/components/theme-demo';
-import {HelloWave} from "@/components/hello-wave";
+import { useThemeContext } from '@/contexts/theme-context';
+import { Post } from '@/stories/Post';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
+
+type TabKey = 'actualites' | 'classement' | 'retenus';
 
 export default function DemocracyNewsScreen() {
+    const [posts, setPosts] = useState<SimplePost[]>([]);
+    const router = useRouter();
+    const { colorScheme } = useThemeContext();
+
+    useEffect(() => {
+        const newsPosts = getNews();
+        setPosts(newsPosts);
+    }, []);
+
+    const formatDate = (date: Date) => {
+        return date.toLocaleDateString('fr-FR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+
+    const handleTabChange = (tab: TabKey) => {
+        if (tab === 'classement') {
+            router.push('/democracy/democracyRanking');
+        } else if (tab === 'retenus') {
+            router.push('/democracy/democracyRetained');
+        }
+    };
+
     return (
-        <ParallaxScrollView
-            headerBackgroundColor={{ light: Colors.light.primary, dark: Colors.dark.primary }}>
-            <ThemedView style={styles.titleContainer}>
-                <ThemedText type="screenTitle">Les actualités en démocracie</ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.navContainer}>
-            <ThemedView style={styles.titleContainer}>
-                <Link href="/democracy/democracyNews">
-                   <ThemedText type="link">Actualités</ThemedText>
-                </Link>
-            </ThemedView>
-            <ThemedView style={styles.titleContainer}>
-                <Link href="/democracy/democracyRanking">
-                    <ThemedText type="link">Classement</ThemedText>
-                </Link>
-            </ThemedView>
-            <ThemedView style={styles.titleContainer}>
-                <Link href="/democracy/democracyRetained">
-                    <ThemedText type="link">Retenus</ThemedText>
-                </Link>
-            </ThemedView>
-            </ThemedView>
-        </ParallaxScrollView>
+        <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
+            <FlatList
+                data={posts}
+                keyExtractor={(item) => item.id.toString()}
+                ListHeaderComponent={
+                    <DemocracyHeader 
+                        activeTab="actualites" 
+                        onTabChange={handleTabChange}
+                    />
+                }
+                stickyHeaderIndices={[0]}
+                renderItem={({ item }) => (
+                    <ThemedView>
+                        <Post
+                            username={item.author.displayName}
+                            avatarUri={item.author.profilePictureUrl}
+                            date={formatDate(item.createdAt)}
+                            text={item.content}
+                            images={item.medias.map(m => m.mediaUrl)}
+                            likeCount={item.likeCount}
+                            commentCount={item.commentCount}
+                            level={0}
+                            onPressLike={() => {}}
+                            onPressComment={() => {}}
+                            onPressRepost={() => {}}
+                            onPressShare={() => {}}
+                            onPress={() => router.push(`/(tabs)/postDetail?id=${item.id}`)}
+                        />
+                    </ThemedView>
+                )}
+                ItemSeparatorComponent={() => <View style={{ height: Spacing.margin }} />}
+                contentContainerStyle={styles.listContent}
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    titleContainer: {
-        flexDirection: 'row',
-        gap: Spacing.margin,
+    container: {
+        flex: 1,
     },
-    navContainer: {
-        flexDirection: 'row',
-        gap: Spacing.margin,
+    listContent: {
+        paddingBottom: Spacing.margin,
     },
 });
