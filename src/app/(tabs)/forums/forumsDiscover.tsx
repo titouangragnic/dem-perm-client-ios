@@ -35,7 +35,7 @@ function ForumHeader({ activeTab, onTabChange }: ForumHeaderProps) {
                 paddingTop: insets.top + Spacing.padding
             }
         ]}>
-            <View style={styles.segmentedControlContainer}>
+            <View>
                 <View style={[
                     styles.segmentedControl,
                     { backgroundColor: Colors[colorScheme].primary }
@@ -66,7 +66,7 @@ function ForumHeader({ activeTab, onTabChange }: ForumHeaderProps) {
 }
 
 // Mapping des domaines vers des icônes
-const getDomainIcon = (domainName: string): iconVariants => {
+    const getDomainIcon = (domainName: string): iconVariants => {
     const lowerName = domainName.toLowerCase();
     if (lowerName.includes('écologie') || lowerName.includes('environnement')) {
         return 'megaphone';
@@ -115,7 +115,6 @@ export default function ForumsDiscoverScreen() {
             
             <ScrollView 
                 style={[styles.scrollView, { backgroundColor: Colors[colorScheme].background }]}
-                contentContainerStyle={styles.contentContainer}
             >
                 <ThemedView style={styles.domainsContainer}>
                     {domains.map((domain) => (
@@ -139,9 +138,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         paddingBottom: Spacing.padding,
-    },
-    segmentedControlContainer: {
-        paddingHorizontal: Spacing.padding,
+        marginHorizontal: Spacing.margin,
     },
     segmentedControl: {
         flexDirection: 'row',
@@ -167,10 +164,8 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
-    contentContainer: {
-        padding: Spacing.padding,
-    },
     domainsContainer: {
         gap: Spacing.margin,
+        margin: Spacing.margin,
     },
 });

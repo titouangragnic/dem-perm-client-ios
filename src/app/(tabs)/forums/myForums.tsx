@@ -36,7 +36,7 @@ function ForumHeader({ activeTab, onTabChange }: ForumHeaderProps) {
                 paddingTop: insets.top + Spacing.padding
             }
         ]}>
-            <View style={styles.segmentedControlContainer}>
+            <View>
                 <View style={[
                     styles.segmentedControl,
                     { backgroundColor: Colors[colorScheme].primary }
@@ -115,11 +115,9 @@ export default function MyForumsScreen() {
             
             <ScrollView 
                 style={[styles.scrollView, { backgroundColor: Colors[colorScheme].background }]}
-                contentContainerStyle={styles.contentContainer}
             >
                 {/* Barre de recherche */}
                 <InputBar
-                    backgroundColor="background"
                     onActionPress={handleSearch}
                     onChangeText={setSearchQuery}
                     placeholder="Rechercher..."
@@ -137,7 +135,7 @@ export default function MyForumsScreen() {
                 </View>
 
                 {/* Liste des forums */}
-                <ThemedView style={styles.forumsContainer}>
+                <ThemedView>
                     {filteredForums.map((forum) => (
                         <Forum
                             key={forum.id}
@@ -158,9 +156,7 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         paddingBottom: Spacing.padding,
-    },
-    segmentedControlContainer: {
-        paddingHorizontal: Spacing.padding,
+        marginHorizontal: Spacing.margin,
     },
     segmentedControl: {
         flexDirection: 'row',
@@ -171,7 +167,6 @@ const styles = StyleSheet.create({
     tab: {
         flex: 1,
         paddingVertical: 10,
-        paddingHorizontal: 12,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
@@ -186,13 +181,8 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
-    contentContainer: {
-        padding: Spacing.padding,
-    },
     createButtonContainer: {
         marginVertical: Spacing.margin,
-    },
-    forumsContainer: {
-        gap: Spacing.margin / 2,
+        marginHorizontal: Spacing.margin,
     },
 });

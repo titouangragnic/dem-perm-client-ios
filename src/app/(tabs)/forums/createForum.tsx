@@ -104,7 +104,6 @@ export default function CreateForumScreen() {
                 <View style={styles.fieldContainer}>
                     <ThemedText style={styles.label}>Description du forum</ThemedText>
                     <InputBar
-                        backgroundColor="background"
                         bigInput
                         hideRightIcon
                         onChangeText={setForumDescription}

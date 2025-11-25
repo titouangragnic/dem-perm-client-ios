@@ -135,7 +135,6 @@ export default function ThemeForumsScreen() {
                 
                 <View style={styles.searchContainer}>
                     <InputBar
-                        backgroundColor="background"
                         onActionPress={handleSearch}
                         onChangeText={setSearchQuery}
                         placeholder={`Rechercher dans ${domainName}`}
@@ -147,10 +146,9 @@ export default function ThemeForumsScreen() {
 
             <ScrollView 
                 style={[styles.scrollView, { backgroundColor: Colors[colorScheme].background }]}
-                contentContainerStyle={styles.contentContainer}
             >
                 {/* Liste des forums */}
-                <ThemedView style={styles.forumsContainer}>
+                <ThemedView>
                     {filteredForums.length > 0 ? (
                         filteredForums.map((forum) => (
                             <Forum
@@ -205,21 +203,13 @@ const styles = StyleSheet.create({
     navigationBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: Spacing.padding,
         paddingVertical: Spacing.padding / 2,
-        gap: Spacing.margin,
     },
     searchContainer: {
         flex: 1,
     },
     scrollView: {
         flex: 1,
-    },
-    contentContainer: {
-        padding: Spacing.padding,
-    },
-    forumsContainer: {
-        gap: Spacing.margin / 2,
     },
     emptyText: {
         textAlign: 'center',
