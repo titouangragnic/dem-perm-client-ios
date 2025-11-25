@@ -47,6 +47,7 @@ export default function Login() {
                     onChangeText={setPassword}
                     placeholder="Mot de passe"
                     rightIcon="search"
+                    isPassword={true}
                 />
 
                 <Button
