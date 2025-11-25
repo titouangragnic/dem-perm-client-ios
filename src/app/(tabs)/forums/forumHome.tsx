@@ -137,7 +137,7 @@ export default function ForumHomeScreen() {
                             <Domain
                                 key={post.id}
                                 icon="chatbubbles"
-                                label={post.content.length > 50 ? post.content.substring(0, 50) + '...' : post.content}
+                                label={post.content}
                                 onPress={() => handlePostPress(post.id)}
                                 thickness={24}
                             />
@@ -179,11 +179,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     contentContainer: {
-        padding: Spacing.padding,
+        padding: Spacing.margin,
     },
     forumInfoSection: {
         padding: Spacing.padding * 1.5,
-        borderRadius: Spacing.borderRadius * 2,
+        borderRadius: Spacing.borderRadius,
         marginBottom: Spacing.margin * 2,
     },
     forumTitle: {

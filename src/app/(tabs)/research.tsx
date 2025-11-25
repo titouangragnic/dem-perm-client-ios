@@ -121,18 +121,17 @@ const styles = StyleSheet.create({
     usersGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: Spacing.margin,
         justifyContent: 'center',
 
     } as ViewStyle,
     userCardWrapper: {
-        width: '47%',
+        width: '50%',
         minWidth: 150,
     } as ViewStyle,
     postsSection: {
         marginTop: Spacing.margin,
     } as ViewStyle,
     postWrapper: {
-        marginBottom: Spacing.margin / 2,
+        marginBottom: Spacing.margin,
     } as ViewStyle,
 });
