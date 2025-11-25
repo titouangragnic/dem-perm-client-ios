@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import {TextInput, View, Text, TouchableOpacity, StyleSheet} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { Colors, Spacing, Typography } from "@/constants/theme";
+import { useThemeContext } from "@/contexts/theme-context";
 import { useUser } from "@/contexts/user-context";
-import {router} from "expo-router";
-import {ThemedView} from "@/components/themed-view";
-import {InputBar} from "@/stories/InputBar";
-import {ThemedText} from "@/components/themed-text";
-import {Colors, Spacing, Typography} from "@/constants/theme";
-import {useThemeContext} from "@/contexts/theme-context";
-import {Button} from "@/stories/Button";
+import { Button } from "@/stories/Button";
+import { InputBar } from "@/stories/InputBar";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Register() {
     const { register } = useUser()!;
@@ -47,6 +47,7 @@ export default function Register() {
                     onChangeText={setPassword}
                     placeholder="Mot de passe"
                     rightIcon="search"
+                    isPassword={true}
                 />
 
                 <Button
