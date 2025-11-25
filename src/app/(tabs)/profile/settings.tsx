@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {Colors} from "@/constants/theme";
+import {Colors, Spacing} from "@/constants/theme";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {ThemedText} from "@/components/themed-text";
 import {ThemedView} from "@/components/themed-view";
@@ -130,14 +130,16 @@ export default function SettingsScreen() {
                             </View>
                         </View>
                     </ThemedView>
-                  <ThemedText>
-                    Connecté en tant que : {user?.email}
-                  </ThemedText>
+                    <ThemedView style={styles.disconnect}>
+                        <ThemedText>
+                            Connecté en tant que : {user?.email}
+                        </ThemedText>
 
-                  <Button
-                    label="se déconnecter"
-                    onPress={handleLogout}
-                  />
+                        <Button
+                            label="se déconnecter"
+                            onPress={handleLogout}
+                        />
+                    </ThemedView>
                 </ThemedView>
             </ThemedView>
         </SafeAreaView>
@@ -158,5 +160,9 @@ const styles = StyleSheet.create({
     },
     container: {
         height: "100%"
+    },
+    disconnect: {
+        margin: Spacing.margin,
+        gap: 5
     }
 });

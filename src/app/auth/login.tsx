@@ -1,8 +1,14 @@
 import { useUser } from "@/contexts/user-context";
-import { TextInput, Button, View, Text, TouchableOpacity} from "react-native";
+import {TextInput, View, Text, TouchableOpacity, StyleSheet} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState } from "react";
 import {router} from "expo-router";
+import {ThemedView} from "@/components/themed-view";
+import {InputBar} from "@/stories/InputBar";
+import {Button} from "@/stories/Button";
+import {Colors, Spacing, Typography} from "@/constants/theme";
+import {useThemeContext} from "@/contexts/theme-context";
+import {ThemedText} from "@/components/themed-text";
 
 export default function Login() {
     const { login } = useUser()!;
@@ -17,34 +23,73 @@ export default function Login() {
       alert("Erreur lors de la connexion: " + e)
     }
   }
+    const { colorScheme } = useThemeContext();
+    const primaryColor = Colors[colorScheme].primary;
+    const backgroundColor = Colors[colorScheme].background;
 
     return (
-        <SafeAreaView style={{ flex: 1, justifyContent: "center", padding: 20 }}>
-            <View style={{ gap: 12 }}>
-                <TextInput
-                    placeholder="Email"
-                    value={email}
+        <SafeAreaView style={[styles.container, {backgroundColor: backgroundColor}]}>
+            <ThemedView style={[styles.loginContainer, {backgroundColor: primaryColor}]}>
+                <ThemedText style={styles.title}>
+                    Se connecter
+                </ThemedText>
+                <InputBar
+                    backgroundColor="background"
+                    hideRightIcon
                     onChangeText={setEmail}
-                    autoCapitalize="none"
-                    style={{ borderWidth: 1, padding: 10, borderRadius: 8, backgroundColor: "#fff" }}
+                    placeholder="Email"
+                    rightIcon="search"
                 />
 
-                <TextInput
-                    placeholder="Mot de passe"
-                    value={password}
+                <InputBar
+                    backgroundColor="background"
+                    hideRightIcon
                     onChangeText={setPassword}
-                    secureTextEntry
-                    style={{ borderWidth: 1, padding: 10, borderRadius: 8, backgroundColor: "#fff" }}
+                    placeholder="Mot de passe"
+                    rightIcon="search"
                 />
 
-                <Button title="Se connecter" onPress={handleLogin} />
+                <Button
+                    label="Se connecter"
+                    onPress={handleLogin}
+                    style={styles.loginButton}
+                    size={"large"}
+                />
 
                 <TouchableOpacity onPress={() => router.replace("/auth/register")}>
-                    <Text style={{ textAlign: "center", marginTop: 20, backgroundColor: '#fff' }}>
-                        Pas de compte ? <Text style={{ fontWeight: "bold", backgroundColor: '#fff' }}>Inscrivez-vous</Text>
-                    </Text>
+                    <ThemedText style={styles.bottomLinkText}>
+                        Pas de compte ? <ThemedText>Inscrivez-vous</ThemedText>
+                    </ThemedText>
                 </TouchableOpacity>
-            </View>
+            </ThemedView>
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        height: "100%",
+        backgroundColor: "red",
+        justifyContent: "center"
+    },
+    loginContainer: {
+        backgroundColor: "blue",
+        borderRadius: 12,
+        margin: Spacing.margin
+    },
+    loginButton: {
+        marginHorizontal: Spacing.margin,
+        marginTop: Spacing.margin
+    },
+    bottomLinkText: {
+        margin: Spacing.margin,
+        marginTop: Spacing.margin * 2,
+        alignSelf: "center",
+    },
+    title: {
+        alignSelf: "center",
+        fontSize: Typography.sizes.title,
+        fontWeight: Typography.weights.semiBold,
+        margin: Spacing.margin,
+    }
+})
