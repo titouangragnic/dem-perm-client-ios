@@ -22,8 +22,7 @@ export default function Register() {
     const [step, setStep] = useState(1);
 
     const handleRegister = async () => {
-      const e = await register(email, password);
-      //FIXME: add username, biography, location, isPrivate to the user object
+      const e = await register(email, password, username, biography, location, isPrivate);
       if (e) {
         alert("Erreur lors de l'inscription: " + e)
       }

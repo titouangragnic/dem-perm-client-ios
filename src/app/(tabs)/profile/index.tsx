@@ -1,17 +1,20 @@
-import React, {useEffect} from 'react';
-import {ScrollView, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {ScrollView, StyleSheet, ActivityIndicator} from 'react-native';
 import {useRouter} from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
 import {ProfileHeader} from "@/stories/ProfileHeader";
 import {Profile} from "@/api/types/profile/profile";
-import {getMyProfile} from "@/api/mock/functions";
 import {Post} from "@/stories/Post";
 import {Button} from "@/stories/Button";
+import { userService } from '@/api/services/user.service';
+import { ThemedText } from '@/components/themed-text';
 
 export default function ProfileScreen() {
 
-    const [profile, setProfile] = React.useState<Profile>();
+    const [profile, setProfile] = useState<any>();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const router = useRouter();
 
@@ -31,26 +34,63 @@ export default function ProfileScreen() {
         router.navigate("/profile/create-post");
     }
 
+    const fetchProfile = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const userProfile = await userService.getMe();
+            setProfile(userProfile);
+            console.log('Profil récupéré:', userProfile);
+        } catch (err: any) {
+            console.error('Erreur lors de la récupération du profil:', err);
+            // Ignore les erreurs CORS ou réseau si elles ne contiennent pas de response
+            if (err.response) {
+                setError(err.response?.data?.message || err.message || 'Erreur lors de la récupération du profil');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const profile : Profile|undefined = getMyProfile();
-        if (profile)
-            setProfile(profile);
+        fetchProfile();
     }, [])
 
+    if (loading) {
+        return (
+            <ThemedView style={[styles.container, styles.centerContent]}>
+                <ActivityIndicator size="large" />
+                <ThemedText>Chargement du profil...</ThemedText>
+            </ThemedView>
+        );
+    }
+
+    if (error) {
+        return (
+            <ThemedView style={[styles.container, styles.centerContent]}>
+                <ThemedText>Erreur: {error}</ThemedText>
+                <Button label="Réessayer" onPress={fetchProfile} />
+            </ThemedView>
+        );
+    }
+
     if (!profile) {
-        // TODO: Create error screen
-        return <></>
+        return (
+            <ThemedView style={[styles.container, styles.centerContent]}>
+                <ThemedText>Aucun profil trouvé</ThemedText>
+            </ThemedView>
+        );
     }
 
     return (
         <>
             <ThemedView>
-                <ProfileHeader username={profile.user.displayName}
-                               description={profile.bio}
-                               votes={profile.voteCount}
+                <ProfileHeader username={profile.username || 'Utilisateur'}
+                               description={profile.biography || 'Aucune biographie'}
+                               votes={0}
 
-                               bannerUri={profile.user.bannerUrl}
-                               avatarUri={profile.user.profilePictureUrl}
+                               bannerUri={profile.bannerUrl}
+                               avatarUri={profile.profilePictureUrl}
 
                                onPressModify={handleModifyPress}
                                onPressMyVotes={handleMyVotesPress}
@@ -60,24 +100,19 @@ export default function ProfileScreen() {
 
             <ThemedView style={styles.container}>
                 <ScrollView>
-
                     <Button
                         icon="add"
                         label="Nouveau post"
                         onPress={handleNewPostPress}
                         style={styles.createPostButton}
                     />
-                    {
-                        profile.posts.map(post => {
-                            return (
-                                <Post username={post.author.displayName}
-                                      date={post.createdAt}
-                                      text={post.content}
-                                      key={post.id}
-                                />
-                            )
-                        })
-                    }
+                    <ThemedText style={styles.infoText}>
+                        Localisation: {profile.location || 'Non renseignée'}
+                    </ThemedText>
+                    <ThemedText style={styles.infoText}>
+                        Compte: {profile.isPrivate ? 'Privé' : 'Public'}
+                    </ThemedText>
+                    {/* TODO: Ajouter l'affichage des posts quand l'endpoint sera disponible */}
                 </ScrollView>
             </ThemedView>
         </>
@@ -88,7 +123,15 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    centerContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     createPostButton: {
         margin: 8
+    },
+    infoText: {
+        margin: 8,
+        fontSize: 14,
     }
 });
