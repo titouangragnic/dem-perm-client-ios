@@ -43,7 +43,7 @@ export const userService = {
    */
   async getMe(): Promise<UserProfile | null> {
     try {
-      const response = await socialApiClient.get('/api/v1/users/me');
+      const response = await socialApiClient.get('/api/v1/users/me/');
       const res = response.data;
       return res === "" ? null : res;
     } catch (error: any) {

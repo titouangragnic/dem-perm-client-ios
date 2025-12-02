@@ -10,7 +10,7 @@ interface UserContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<any>;
   loginAndCheckProfile: (email: string, password: string) => Promise<{ needsProfile: boolean }>;
-  register: (email: string, password: string, username: string, biography: string, location: string, isPrivate: boolean) => Promise<any>;
+  registerAndCheckProfile: (email: string, password: string) => Promise<any>;
   completeProfile: (username: string, biography: string, location: string, isPrivate: boolean) => Promise<any>;
   logout: () => Promise<any>;
   loading: boolean;
@@ -20,7 +20,7 @@ export const UserContext = createContext<UserContextType>({
   user: null, 
   login: async (): Promise<undefined> => {}, 
   loginAndCheckProfile: async (): Promise<{ needsProfile: boolean }> => ({ needsProfile: false }),
-  register: async (): Promise<undefined> => {}, 
+  registerAndCheckProfile: async (): Promise<undefined> => {},
   completeProfile: async (): Promise<undefined> => {},
   logout: async (): Promise<undefined> => {}, 
   loading: true
@@ -31,12 +31,12 @@ export const UserProvider = ({children}: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
-      console.log("User state changed:", firebaseUser);
       if (firebaseUser) {
-        router.replace("/feed")
+        if (await userService.getMe())
+          router.replace("/feed");
       }
       else {
         router.replace("/auth/login")
@@ -107,7 +107,7 @@ export const UserProvider = ({children}: { children: React.ReactNode }) => {
     }
   }
 
-  async function register(email: string, password: string, username: string, biography: string, location: string, isPrivate: boolean) {
+  async function registerAndCheckProfile(email: string, password: string): Promise<boolean| any> {
     try {
       // 1. Créer l'utilisateur dans Firebase
       const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -115,16 +115,10 @@ export const UserProvider = ({children}: { children: React.ReactNode }) => {
       
       // 2. Récupérer et stocker le token Firebase
       await authService.getAndStoreToken(result.user);
-      
-      // 3. Créer le profil utilisateur sur le backend social
-      await userService.createUser({
-        username,
-        biography,
-        location,
-        isPrivate,
-      });
-      
-      console.log("Utilisateur créé avec succès sur Firebase et le backend");
+
+      console.log("Utilisateur créé avec succès sur Firebase");
+
+      return (await userService.getMe()) !== null;
       
     } catch (e) {
       console.log("Erreur register :", e);
@@ -149,7 +143,7 @@ export const UserProvider = ({children}: { children: React.ReactNode }) => {
 
 
   return (
-    <UserContext.Provider value={{ user, login, loginAndCheckProfile, register, completeProfile, logout, loading }}>
+    <UserContext.Provider value={{ user, login, loginAndCheckProfile, registerAndCheckProfile, completeProfile, logout, loading }}>
 
     {children}
     </UserContext.Provider>

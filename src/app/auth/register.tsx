@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {Toggle} from "@/stories/Toggle";
 
 export default function Register() {
-    const { register } = useUser()!;
+    const { registerAndCheckProfile, completeProfile } = useUser()!;
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
@@ -22,10 +22,20 @@ export default function Register() {
     const [step, setStep] = useState(1);
 
     const handleRegister = async () => {
-      const e = await register(email, password, username, biography, location, isPrivate);
-      if (e) {
-        alert("Erreur lors de l'inscription: " + e)
-      }
+      const registered = await registerAndCheckProfile(email, password);
+
+      if (registered === true)
+        router.replace("//(tabs)/feed");
+
+      // registered but not created in backend
+      else if (registered === false) setStep(2);
+
+      else alert("Erreur lors de l'inscription: " + registered.message);
+    }
+
+    const handleCompleteProfile = async () => {
+      await completeProfile(username, biography, location, isPrivate);
+      router.replace("/feed");
     }
 
     const { colorScheme } = useThemeContext();
@@ -44,6 +54,7 @@ export default function Register() {
                         password={password}
                         setEmail={setEmail}
                         setPassword={setPassword}
+                        handleRegister={handleRegister}
                         setStep={setStep}/>
                 }
                 {step === 2 &&
@@ -61,7 +72,7 @@ export default function Register() {
                         setLocation={setLocation}
                         setIsPrivate={setIsPrivate}
                         isPrivate={isPrivate}
-                        handleRegister={handleRegister}
+                        handleCompleteProfile={handleCompleteProfile}
                         setStep={setStep}
                     />
                 }
@@ -81,9 +92,10 @@ interface Step1Props {
     setEmail: (text: string) => void,
     setPassword: (text: string) => void;
     setStep: (step: number) => void;
+    handleRegister: () => void;
 }
 
-function Step1({setEmail, setPassword, setStep, email, password}: Step1Props) {
+function Step1({setEmail, setPassword, handleRegister, email, password}: Step1Props) {
     return (
         <>
             <InputBar
@@ -105,7 +117,7 @@ function Step1({setEmail, setPassword, setStep, email, password}: Step1Props) {
 
             <Button
                 label="Continuer"
-                onPress={() => setStep(2)}
+                onPress={() => handleRegister()}
                 style={styles.loginButton}
                 size={"large"}
             />
@@ -162,11 +174,11 @@ interface Step3Props {
     setLocation: (text: string) => void,
     isPrivate: boolean;
     location: string;
-    handleRegister: () => void;
+    handleCompleteProfile: () => void;
     setStep: (step: number) => void;
 }
 
-function Step3({setLocation, setIsPrivate, isPrivate, handleRegister, setStep, location} : Step3Props) {
+function Step3({setLocation, setIsPrivate, isPrivate, handleCompleteProfile, setStep, location} : Step3Props) {
     return (
         <>
             <InputBar
@@ -190,7 +202,7 @@ function Step3({setLocation, setIsPrivate, isPrivate, handleRegister, setStep, l
                 />
                 <Button
                     label="Valider l'inscription"
-                    onPress={handleRegister}
+                    onPress={handleCompleteProfile}
                     style={styles.loginButton}
                     size={"large"}
                 />

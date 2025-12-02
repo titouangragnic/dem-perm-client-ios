@@ -32,6 +32,8 @@ export default function Login() {
         // Le profil n'existe pas, afficher le formulaire
         setShowProfileForm(true);
       }
+      else
+        router.replace("/feed")
     } catch (e: any) {
       alert("Erreur lors de la connexion: " + (e.message || e))
     }

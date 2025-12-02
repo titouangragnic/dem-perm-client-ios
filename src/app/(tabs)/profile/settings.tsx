@@ -134,7 +134,6 @@ export default function SettingsScreen() {
                         <ThemedText>
                             Connecté en tant que : {user?.email}
                         </ThemedText>
-
                         <Button
                             label="se déconnecter"
                             onPress={handleLogout}
