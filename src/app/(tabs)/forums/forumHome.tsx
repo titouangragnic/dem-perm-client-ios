@@ -38,9 +38,12 @@ export default function ForumHomeScreen() {
     };
 
     const handleCreatePost = () => {
-        // TODO: Navigation vers la page de création de post
-        console.log('Créer un nouveau post');
-        // router.push('/(tabs)/forums/createPost');
+      router.push({
+        pathname: '/profile/create-post',
+        params: {
+          forumData: JSON.stringify(forum)
+        }
+      });
     };
 
     const handlePostPress = (postId: number) => {
