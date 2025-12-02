@@ -41,10 +41,11 @@ export const userService = {
    * Récupère les informations de l'utilisateur connecté
    * GET /api/v1/users/me
    */
-  async getMe(): Promise<UserProfile> {
+  async getMe(): Promise<UserProfile | null> {
     try {
-      const response = await socialApiClient.get<UserProfile>('/api/v1/users/me');
-      return response.data;
+      const response = await socialApiClient.get('/api/v1/users/me');
+      const res = response.data;
+      return res === "" ? null : res;
     } catch (error: any) {
       console.error('Erreur lors de la récupération du profil:', error.response?.data || error.message);
       throw error;
