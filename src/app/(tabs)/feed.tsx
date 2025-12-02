@@ -1,4 +1,3 @@
-import { getFeed } from '@/api/mock/functions';
 import { SimplePost } from '@/api/types/common/simple-post';
 import { Colors, Spacing } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
@@ -9,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {postService} from "@/api/services/post.service";
 
 export default function FeedScreen() {
     const [posts, setPosts] = useState<SimplePost[]>([]);
@@ -17,8 +17,15 @@ export default function FeedScreen() {
     const insets = useSafeAreaInsets();
 
     useEffect(() => {
-        const feedPosts = getFeed();
-        setPosts(feedPosts);
+      const fetchPosts = async () => {
+        try {
+          const feedPosts = await postService.getFeedPosts();
+          setPosts(feedPosts);
+        } catch (error) {
+          console.error("Failed to fetch posts:", error);
+        }
+      };
+      void fetchPosts();
     }, []);
 
     const formatDate = (date: Date) => {

@@ -7,7 +7,7 @@ export class Media {
 }
 
 export class SimplePost {
-    id!: number;
+    id!: string;
     forum!: SimpleForum | null;
     author!: SimpleUser;
     content!: string;
