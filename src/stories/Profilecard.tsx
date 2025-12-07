@@ -70,35 +70,36 @@ export const ProfileCard: React.FC<ProfileCardProps> = memo(
                             {username}
                         </Text>
                     </View>
+                    <View style={styles.bottomContent}>
+                        <Text
+                            style={[
+                                styles.description,
+                                { color: palette.text, opacity: 0.9, fontFamily },
+                            ]}
+                            numberOfLines={3}
+                            ellipsizeMode="tail"
+                        >
+                            {description}
+                        </Text>
 
-                    <Text
-                        style={[
-                            styles.description,
-                            { color: palette.text, opacity: 0.9, fontFamily },
-                        ]}
-                        numberOfLines={3}
-                        ellipsizeMode="tail"
-                    >
-                        {description}
-                    </Text>
+                        <Text
+                            style={[
+                                styles.votes,
+                                { color: palette.highlight1, fontFamily },
+                            ]}
+                        >
+                            {votes} Votes
+                        </Text>
 
-                    <Text
-                        style={[
-                            styles.votes,
-                            { color: palette.highlight1, fontFamily },
-                        ]}
-                    >
-                        {votes} Votes
-                    </Text>
-
-                    <Button
-                        icon="person-add"
-                        label="Suivre"
-                        backgroundColor="highlight1"
-                        size="large"
-                        style={styles.followBtn}
-                        onPress={onPressFollow}
-                    />
+                        <Button
+                            icon="person-add"
+                            label="Suivre"
+                            backgroundColor="highlight1"
+                            size="large"
+                            style={styles.followBtn}
+                            onPress={onPressFollow}
+                        />
+                    </View>
                 </View>
             </View>
         );
@@ -127,6 +128,7 @@ const styles = StyleSheet.create({
         padding: Spacing.padding,
         paddingTop: Spacing.padding - 6,
         gap: 10,
+        flex: 1
     },
 
     topRow: {
@@ -167,4 +169,10 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         justifyContent: 'center',
     },
+    bottomContent: {
+        display: "flex",
+        flex: 1,
+        flexDirection: "column",
+        justifyContent: "space-between",
+    }
 });
