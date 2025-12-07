@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
-import { Image, ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
+import {Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { fontFamily } from '@/stories/utils';
 import { Button } from './Button';
+import {RelativePathString, router} from "expo-router";
 
 export type ProfileCardProps = {
     username: string;
@@ -24,12 +25,19 @@ export const ProfileCard: React.FC<ProfileCardProps> = memo(
         const { colorScheme } = useThemeContext();
         const palette = Colors[colorScheme];
 
+        function handleOpenProfile(){
+            //FIXME open profile tab if it's the actual connected user
+            router.push({pathname: "/(tabs)/research/profile/[id]" as RelativePathString,
+                    params: { id: "id" }});/* FIXME with userID*/
+        }
+
         return (
-            <View
+            <TouchableOpacity
                 style={[
                     styles.card,
                     { backgroundColor: palette.primary, borderRadius: Spacing.borderRadius },
                 ]}
+                onPress={handleOpenProfile}
             >
                 <View style={styles.bannerWrapper}>
                     {bannerUri ? (
@@ -101,7 +109,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = memo(
                         />
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     }
 );

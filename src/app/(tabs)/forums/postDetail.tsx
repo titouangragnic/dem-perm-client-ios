@@ -6,7 +6,7 @@ import { useThemeContext } from '@/contexts/theme-context';
 import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import {RelativePathString, router, useLocalSearchParams, useRouter} from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -59,6 +59,12 @@ export default function ForumPostDetailScreen() {
     const flatComments: FlatComment[] = fullPost
         ? flattenComments(fullPost.comments)
         : [];
+
+    function handleOpenProfile(){
+        //FIXME open profile tab if it's the actual connected user
+        router.push({pathname: "/(tabs)/forums/profile/[id]" as RelativePathString,
+            params: { id: "id" }});/* FIXME with userID*/
+    }
 
     if (!fullPost) {
         return (
@@ -151,6 +157,7 @@ export default function ForumPostDetailScreen() {
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
                             onPressShare={() => {}}
+                            onPressUser={handleOpenProfile}
                         />
                         <View style={styles.postCommentSeparator} />
                     </>
@@ -168,6 +175,7 @@ export default function ForumPostDetailScreen() {
                         level={item.level + 1}
                         onPressLike={() => {}}
                         onPressComment={() => {}}
+                        onPressUser={handleOpenProfile}
                     />
                 )}
                 contentContainerStyle={styles.listContent}
