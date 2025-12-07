@@ -36,7 +36,7 @@ export default function ResearchScreen() {
 
     function handleOpenProfile(){
         //FIXME open profile tab if it's the actual connected user
-        router.push({pathname: "/(tabs)/research/profile/[id]" as RelativePathString,
+        router.push({pathname: `/(tabs)/research/profile/[id]`,
             params: { id: "id" }});/* FIXME with userID*/
     }
 
@@ -88,7 +88,7 @@ export default function ResearchScreen() {
                                         level={0}
                                         likeCount={post.likeCount}
                                         onPress={() => router.push({
-                                            pathname: '/(tabs)/postDetail',
+                                            pathname: '/(tabs)/research/postDetail',
                                             params: { id: post.id }
                                         })}
                                         onPressComment={() => {}}

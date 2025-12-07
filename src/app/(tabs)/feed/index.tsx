@@ -59,7 +59,7 @@ export default function FeedScreen() {
                         onPressComment={() => {}}
                         onPressRepost={() => {}}
                         onPressShare={() => {}}
-                        onPress={() => router.push(`/(tabs)/postDetail?id=${item.id}`)}
+                        onPress={() => router.push(`/(tabs)/feed/postDetail?id=${item.id}`)}
                     />
                 )}
                 ItemSeparatorComponent={() => <View style={{ height: Spacing.margin }} />}

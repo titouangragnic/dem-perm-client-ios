@@ -6,7 +6,7 @@ import { useThemeContext } from '@/contexts/theme-context';
 import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
-import {RelativePathString, router, useLocalSearchParams, useRouter} from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,7 @@ type FlatComment = CommentType & {
     level: number;
 };
 
-export default function ForumPostDetailScreen() {
+export default function PostDetailScreen() {
     const [fullPost, setFullPost] = useState<FullPost | null>(null);
     const router = useRouter();
     const params = useLocalSearchParams();
@@ -59,12 +59,6 @@ export default function ForumPostDetailScreen() {
     const flatComments: FlatComment[] = fullPost
         ? flattenComments(fullPost.comments)
         : [];
-
-    function handleOpenProfile(){
-        //FIXME open profile tab if it's the actual connected user
-        router.push({pathname: `/(tabs)/forums/profile/[id]`,
-            params: { id: "id" }});/* FIXME with userID*/
-    }
 
     if (!fullPost) {
         return (
@@ -157,7 +151,6 @@ export default function ForumPostDetailScreen() {
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
                             onPressShare={() => {}}
-                            onPressUser={handleOpenProfile}
                         />
                         <View style={styles.postCommentSeparator} />
                     </>
@@ -175,7 +168,6 @@ export default function ForumPostDetailScreen() {
                         level={item.level + 1}
                         onPressLike={() => {}}
                         onPressComment={() => {}}
-                        onPressUser={handleOpenProfile}
                     />
                 )}
                 contentContainerStyle={styles.listContent}

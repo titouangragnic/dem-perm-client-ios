@@ -27,7 +27,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = memo(
 
         function handleOpenProfile(){
             //FIXME open profile tab if it's the actual connected user
-            router.push({pathname: "/(tabs)/research/profile/[id]" as RelativePathString,
+            router.push({pathname: `/(tabs)/research/profile/[id]`,
                     params: { id: "id" }});/* FIXME with userID*/
         }
 

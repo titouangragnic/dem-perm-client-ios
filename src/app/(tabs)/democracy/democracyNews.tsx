@@ -64,7 +64,7 @@ export default function DemocracyNewsScreen() {
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
                             onPressShare={() => {}}
-                            onPress={() => router.push(`/(tabs)/postDetail?id=${item.id}`)}
+                            onPress={() => router.push(`/(tabs)/democracy/postDetail?id=${item.id}`)}
                         />
                     </ThemedView>
                 )}
