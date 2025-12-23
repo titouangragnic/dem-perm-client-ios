@@ -7,6 +7,15 @@ export interface CreateUserDto {
   isPrivate: boolean;
 }
 
+export interface UpdateUserDto {
+  username?: string;
+  display_name?: string;
+  profile_picture_url?: string;
+  bio?: string;
+  location?: string;
+  privacy?: 'public' | 'private';
+}
+
 export interface UserProfile {
   id: string;
   firebaseUid: string;
@@ -62,6 +71,28 @@ export const userService = {
       return response.data;
     } catch (error: any) {
       console.error('Erreur lors de la récupération de l\'utilisateur:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Met à jour les informations de l'utilisateur connecté
+   * PATCH /api/v1/users/me/update/
+   */
+  async updateMe(userData: UpdateUserDto): Promise<UserProfile> {
+    try {
+      const response = await socialApiClient.patch<UserProfile>(
+        '/api/v1/users/me/update/',
+        { data: userData },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la mise à jour du profil:', error.response?.data || error.message);
       throw error;
     }
   },

@@ -3,8 +3,8 @@ import { auth } from '@/auth/firebase-config';
 import Constants from 'expo-constants';
 
 // URLs des serveurs backend
-const SOCIAL_API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_SOCIAL_API_URL || 'http://localhost:8000';
-const VOTE_API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_VOTE_API_URL || 'http://localhost:8001';
+const SOCIAL_API_URL = 'https://social.demperm.gragnic.fr';
+const VOTE_API_URL = 'https://vote.demperm.gragnic.fr';
 
 /**
  * Crée un client axios avec gestion automatique du token Firebase
