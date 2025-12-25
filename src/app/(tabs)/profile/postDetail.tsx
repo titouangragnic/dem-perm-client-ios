@@ -162,10 +162,6 @@ export default function PostDetailScreen() {
                             likeCount={fullPost.post.likeCount}
                             commentCount={fullPost.post.commentCount}
                             level={0}
-                            onPress={() => router.push({
-                                pathname: '/(tabs)/profile/postDetail',
-                                params: { id: fullPost.post.id }
-                            })}
                             onPressLike={() => {}}
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
