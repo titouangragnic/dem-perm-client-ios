@@ -11,6 +11,8 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import ImageView from "react-native-image-viewing";
+import {set} from "@firebase/database";
 
 export type PostProps = {
     username: string;
@@ -76,6 +78,7 @@ export const Post: React.FC<PostProps> = memo(
 
         const heartIcon = liked ? 'heart' : 'heart-outline';
         const heartColor = liked ? palette.highlight2 : palette.text;
+        const [zoomPictures, setZoomPictures] = React.useState<boolean>(false);
 
         // card indentation (where the post starts)
         const paddingLeft = useMemo(
@@ -198,8 +201,15 @@ export const Post: React.FC<PostProps> = memo(
                     >
                         {text}
                     </Text>
+                    <ImageView
+                        images={images.map((uri) => ({ uri }))}
+                        imageIndex={0}
+                        visible={zoomPictures}
+                        onRequestClose={() => setZoomPictures(false)}
+                    />
 
                     {hasImages && !multiple && (
+                        <TouchableOpacity onPress={() => setZoomPictures(true)}>
                         <Image
                             source={{ uri: images[0] } as ImageSourcePropType}
                             style={[
@@ -207,9 +217,11 @@ export const Post: React.FC<PostProps> = memo(
                                 { height: IMAGE_HEIGHT_SINGLE, borderRadius: 12 },
                             ]}
                         />
+                        </TouchableOpacity>
                     )}
 
                     {multiple && (
+                        <TouchableOpacity onPress={() => setZoomPictures(true)}>
                         <View
                             style={[
                                 styles.gridContainer,
@@ -244,6 +256,7 @@ export const Post: React.FC<PostProps> = memo(
                                 ))}
                             </View>
                         </View>
+                        </TouchableOpacity>
                     )}
 
                     <View style={styles.footer}>
