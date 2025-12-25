@@ -1,4 +1,4 @@
-import { getPost } from '@/api/mock/functions';
+import {getMyForums, getPost} from '@/api/mock/functions';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
@@ -7,8 +7,8 @@ import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
 import {RelativePathString, router, useLocalSearchParams, useRouter} from 'expo-router';
-import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type FlatComment = CommentType & {
@@ -21,8 +21,9 @@ export default function ForumPostDetailScreen() {
     const params = useLocalSearchParams();
     const { colorScheme } = useThemeContext();
     const insets = useSafeAreaInsets();
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         const postId = parseInt(params.id as string);
         if (postId) {
             const post = getPost(postId);
@@ -30,6 +31,20 @@ export default function ForumPostDetailScreen() {
                 setFullPost(post);
             }
         }
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
     }, [params.id]);
 
     const formatDate = (date: Date) => {
@@ -179,6 +194,8 @@ export default function ForumPostDetailScreen() {
                     />
                 )}
                 contentContainerStyle={styles.listContent}
+                refreshControl={<RefreshControl
+                    refreshing={refreshing} onRefresh={onRefresh} />}
             />
         </View>
     );

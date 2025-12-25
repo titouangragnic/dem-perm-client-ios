@@ -1,4 +1,4 @@
-import { getLeaderboard, getDomains } from '@/api/mock/functions';
+import {getLeaderboard, getDomains, getFeed} from '@/api/mock/functions';
 import { SimpleUser } from '@/api/types/common/simple-user';
 import { Domain } from '@/api/types/forum/domain';
 import { ThemedText } from '@/components/themed-text';
@@ -6,16 +6,17 @@ import { Colors, Spacing } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Tag } from '@/stories/Tag';
 import { ListItem } from '@/stories/ListItem';
-import { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, View, ScrollView } from 'react-native';
+import {useCallback, useEffect, useState} from 'react';
+import {FlatList, Image, StyleSheet, View, ScrollView, RefreshControl} from 'react-native';
 
 export default function DemocracyRankingScreen() {
     const [users, setUsers] = useState<SimpleUser[]>([]);
     const [domains, setDomains] = useState<Domain[]>([]);
     const [selectedDomain, setSelectedDomain] = useState<number | null>(null);
     const { colorScheme } = useThemeContext();
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         const leaderboard = getLeaderboard();
         // Trier par ordre décroissant de votes
         const sortedUsers = [...leaderboard].sort((a, b) => b.voteCount - a.voteCount);
@@ -23,6 +24,16 @@ export default function DemocracyRankingScreen() {
 
         const domainList = getDomains();
         setDomains(domainList);
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
     }, []);
 
 
@@ -95,6 +106,9 @@ export default function DemocracyRankingScreen() {
                 )}
                 ItemSeparatorComponent={() => <View style={{ height: Spacing.margin / 2 }} />}
                 contentContainerStyle={styles.listContent}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
             />
         </View>
     );

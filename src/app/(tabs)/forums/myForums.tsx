@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
+import {StyleSheet, ScrollView, View, Text, TouchableOpacity, RefreshControl} from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedView } from '@/components/themed-view';
 import { Colors, Spacing, Typography } from '@/constants/theme';
@@ -7,7 +7,7 @@ import { useThemeContext } from '@/contexts/theme-context';
 import { InputBar } from '@/stories/InputBar';
 import { Button } from '@/stories/Button';
 import { Forum } from '@/stories/Forum';
-import { getMyForums } from '@/api/mock/functions';
+import {getFeed, getMyForums} from '@/api/mock/functions';
 import { SimpleForum } from '@/api/types/forum/simple-forum';
 
 export default function MyForumsScreen() {
@@ -15,11 +15,22 @@ export default function MyForumsScreen() {
     const router = useRouter();
     const [forums, setForums] = useState<SimpleForum[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         // Charger les forums au montage du composant
         const loadedForums = getMyForums();
         setForums(loadedForums);
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
     }, []);
 
     const handleForumPress = (forumId: number) => {
@@ -49,6 +60,8 @@ export default function MyForumsScreen() {
         <ThemedView style={styles.container}>
             <ScrollView 
                 style={[styles.scrollView, { backgroundColor: Colors[colorScheme].background }]}
+                refreshControl={<RefreshControl
+                    refreshing={refreshing} onRefresh={onRefresh} />}
             >
                 {/* Barre de recherche */}
                 <InputBar

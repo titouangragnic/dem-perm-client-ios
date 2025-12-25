@@ -1,20 +1,31 @@
-import { getNews } from '@/api/mock/functions';
+import {getDomains, getFeed, getLeaderboard, getNews} from '@/api/mock/functions';
 import { SimplePost } from '@/api/types/common/simple-post';
 import { ThemedView } from '@/components/themed-view';
 import { Colors, Spacing } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Post } from '@/stories/Post';
-import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import {useCallback, useEffect, useState} from 'react';
+import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
 import {router} from "expo-router";
 
 export default function DemocracyNewsScreen() {
     const [posts, setPosts] = useState<SimplePost[]>([]);
     const { colorScheme } = useThemeContext();
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         const newsPosts = getNews();
         setPosts(newsPosts);
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
     }, []);
 
     const formatDate = (date: Date) => {
@@ -51,6 +62,8 @@ export default function DemocracyNewsScreen() {
                 )}
                 ItemSeparatorComponent={() => <View style={{ height: Spacing.margin }} />}
                 contentContainerStyle={styles.listContent}
+                refreshControl={<RefreshControl
+                    refreshing={refreshing} onRefresh={onRefresh} />}
             />
         </View>
     );

@@ -7,17 +7,28 @@ import { Colors, Spacing } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
 import { ListItem } from '@/stories/ListItem';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {useCallback, useEffect, useState} from 'react';
+import {FlatList, Image, RefreshControl, StyleSheet, TouchableOpacity, View} from 'react-native';
 
 type TabKey = 'actualites' | 'classement' | 'retenus';
 
 export default function DemocracyRetainedScreen() {
     const [favorites, setFavorites] = useState<SimpleUser[]>([]);
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         const favUsers = getFavorites();
         setFavorites(favUsers);
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
     }, []);
 
 
@@ -46,6 +57,9 @@ export default function DemocracyRetainedScreen() {
                     <View style={styles.emptyContainer}>
                         <ThemedText style={styles.emptyText}>Aucun profil retenu</ThemedText>
                     </View>
+                }
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             />
         </View>

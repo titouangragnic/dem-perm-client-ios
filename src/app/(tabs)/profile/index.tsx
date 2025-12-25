@@ -1,19 +1,30 @@
-import React, {useEffect} from 'react';
-import {ScrollView, StyleSheet} from 'react-native';
-import {useRouter} from 'expo-router';
+import React, {useCallback, useEffect, useState} from 'react';
+import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
+import {router, useRouter} from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
 import {ProfileHeader} from "@/stories/ProfileHeader";
 import {Profile} from "@/api/types/profile/profile";
-import {getMyProfile} from "@/api/mock/functions";
+import {getFavorites, getMyProfile} from "@/api/mock/functions";
 import {Post} from "@/stories/Post";
 import {Button} from "@/stories/Button";
 
 export default function ProfileScreen() {
 
     const [profile, setProfile] = React.useState<Profile>();
+    const [refreshing, setRefreshing] = useState(false);
 
-    const router = useRouter();
+    const handleGetData = () => {
+        const profile : Profile|undefined = getMyProfile();
+        if (profile)
+            setProfile(profile);
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
 
     const handleMyVotesPress = () => {
         router.navigate("/profile/votes");
@@ -32,9 +43,7 @@ export default function ProfileScreen() {
     }
 
     useEffect(() => {
-        const profile : Profile|undefined = getMyProfile();
-        if (profile)
-            setProfile(profile);
+        handleGetData();
     }, [])
 
     if (!profile) {
@@ -59,7 +68,8 @@ export default function ProfileScreen() {
             </ThemedView>
 
             <ThemedView style={styles.container}>
-                <ScrollView>
+                <ScrollView refreshControl={<RefreshControl
+                    refreshing={refreshing} onRefresh={onRefresh} />}>
 
                     <Button
                         icon="add"
