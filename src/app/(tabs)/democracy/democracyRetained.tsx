@@ -14,38 +14,22 @@ type TabKey = 'actualites' | 'classement' | 'retenus';
 
 export default function DemocracyRetainedScreen() {
     const [favorites, setFavorites] = useState<SimpleUser[]>([]);
-    const router = useRouter();
-    const { colorScheme } = useThemeContext();
 
     useEffect(() => {
         const favUsers = getFavorites();
         setFavorites(favUsers);
     }, []);
 
-    const handleTabChange = (tab: TabKey) => {
-        if (tab === 'actualites') {
-            router.push('/democracy/democracyNews');
-        } else if (tab === 'classement') {
-            router.push('/democracy/democracyRanking');
-        }
-    };
 
     const handleRemove = (id: number) => {
         setFavorites(favorites.filter(user => user.id !== id));
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
+        <View>
             <FlatList
                 data={favorites}
                 keyExtractor={(item) => item.id.toString()}
-                ListHeaderComponent={
-                    <DemocracyHeader 
-                        activeTab="retenus" 
-                        onTabChange={handleTabChange}
-                    />
-                }
-                stickyHeaderIndices={[0]}
                 renderItem={({ item }) => (
                     <ListItem
                         avatarUrl={item.profilePictureUrl}
@@ -69,9 +53,6 @@ export default function DemocracyRetainedScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     listContent: {
         paddingHorizontal: Spacing.margin,
         paddingBottom: Spacing.margin,
