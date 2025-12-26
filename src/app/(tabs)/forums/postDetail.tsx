@@ -1,4 +1,4 @@
-import { getPost } from '@/api/mock/functions';
+import {getMyForums, getPost} from '@/api/mock/functions';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
@@ -6,9 +6,9 @@ import { useThemeContext } from '@/contexts/theme-context';
 import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {RelativePathString, router, useLocalSearchParams, useRouter} from 'expo-router';
+import React, {useCallback, useEffect, useState} from 'react';
+import {FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type FlatComment = CommentType & {
@@ -21,8 +21,9 @@ export default function ForumPostDetailScreen() {
     const params = useLocalSearchParams();
     const { colorScheme } = useThemeContext();
     const insets = useSafeAreaInsets();
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         const postId = parseInt(params.id as string);
         if (postId) {
             const post = getPost(postId);
@@ -30,6 +31,20 @@ export default function ForumPostDetailScreen() {
                 setFullPost(post);
             }
         }
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
     }, [params.id]);
 
     const formatDate = (date: Date) => {
@@ -59,6 +74,12 @@ export default function ForumPostDetailScreen() {
     const flatComments: FlatComment[] = fullPost
         ? flattenComments(fullPost.comments)
         : [];
+
+    function handleOpenProfile(){
+        //FIXME open profile tab if it's the actual connected user
+        router.push({pathname: `/(tabs)/forums/profile/[id]`,
+            params: { id: "id" }});/* FIXME with userID*/
+    }
 
     if (!fullPost) {
         return (
@@ -151,6 +172,7 @@ export default function ForumPostDetailScreen() {
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
                             onPressShare={() => {}}
+                            onPressUser={handleOpenProfile}
                         />
                         <View style={styles.postCommentSeparator} />
                     </>
@@ -168,9 +190,12 @@ export default function ForumPostDetailScreen() {
                         level={item.level + 1}
                         onPressLike={() => {}}
                         onPressComment={() => {}}
+                        onPressUser={handleOpenProfile}
                     />
                 )}
                 contentContainerStyle={styles.listContent}
+                refreshControl={<RefreshControl
+                    refreshing={refreshing} onRefresh={onRefresh} />}
             />
         </View>
     );
