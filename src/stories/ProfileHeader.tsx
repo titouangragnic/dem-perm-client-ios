@@ -1,10 +1,10 @@
-import React, { memo } from 'react';
-import {Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import { useThemeContext } from '@/contexts/theme-context';
+import CustomImageViewer from '@/components/CustomImageViewer';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useThemeContext } from '@/contexts/theme-context';
+import { Button } from "@/stories/Button";
 import { fontFamily } from '@/stories/utils';
-import {Button} from "@/stories/Button";
-import ImageView from "react-native-image-viewing";
+import React, { memo } from 'react';
+import { Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export type ProfileHeaderProps = {
     username: string;
@@ -49,17 +49,17 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = memo(
                             <View style={[styles.banner, { backgroundColor: palette.background }]} />
                         )}
                     </View>
-                    <ImageView
-                        images={[{uri: bannerUri}]}
-                        imageIndex={0}
+                    <CustomImageViewer
+                        images={[{uri: bannerUri ?? ''}]}
+                        initialIndex={0}
                         visible={zoomBanner}
-                        onRequestClose={() => setZoomBanner(false)}
+                        onClose={() => setZoomBanner(false)}
                     />
-                    <ImageView
-                        images={[{uri: avatarUri}]}
-                        imageIndex={0}
+                    <CustomImageViewer
+                        images={[{uri: avatarUri ?? ''}]}
+                        initialIndex={0}
                         visible={zoomAvatar}
-                        onRequestClose={() => setZoomAvatar(false)}
+                        onClose={() => setZoomAvatar(false)}
                     />
                     <View style={styles.content}>
                         <View style={styles.topRow}>
