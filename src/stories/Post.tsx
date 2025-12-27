@@ -1,3 +1,4 @@
+import CustomImageViewer from '@/components/CustomImageViewer';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
 import { fontFamily } from '@/stories/utils';
@@ -11,8 +12,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import ImageView from "react-native-image-viewing";
-import {set} from "@firebase/database";
+
 
 export type PostProps = {
     username: string;
@@ -201,11 +201,11 @@ export const Post: React.FC<PostProps> = memo(
                     >
                         {text}
                     </Text>
-                    <ImageView
+                    <CustomImageViewer
                         images={images.map((uri) => ({ uri }))}
-                        imageIndex={0}
+                        initialIndex={0}
                         visible={zoomPictures}
-                        onRequestClose={() => setZoomPictures(false)}
+                        onClose={() => setZoomPictures(false)}
                     />
 
                     {hasImages && !multiple && (
