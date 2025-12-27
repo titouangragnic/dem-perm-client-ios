@@ -1,3 +1,4 @@
+import CustomImageViewer from '@/components/CustomImageViewer';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
 import { fontFamily } from '@/stories/utils';
@@ -11,6 +12,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+
 
 export type PostProps = {
     username: string;
@@ -76,6 +78,7 @@ export const Post: React.FC<PostProps> = memo(
 
         const heartIcon = liked ? 'heart' : 'heart-outline';
         const heartColor = liked ? palette.highlight2 : palette.text;
+        const [zoomPictures, setZoomPictures] = React.useState<boolean>(false);
 
         // card indentation (where the post starts)
         const paddingLeft = useMemo(
@@ -198,8 +201,15 @@ export const Post: React.FC<PostProps> = memo(
                     >
                         {text}
                     </Text>
+                    <CustomImageViewer
+                        images={images.map((uri) => ({ uri }))}
+                        initialIndex={0}
+                        visible={zoomPictures}
+                        onClose={() => setZoomPictures(false)}
+                    />
 
                     {hasImages && !multiple && (
+                        <TouchableOpacity onPress={() => setZoomPictures(true)}>
                         <Image
                             source={{ uri: images[0] } as ImageSourcePropType}
                             style={[
@@ -207,9 +217,11 @@ export const Post: React.FC<PostProps> = memo(
                                 { height: IMAGE_HEIGHT_SINGLE, borderRadius: 12 },
                             ]}
                         />
+                        </TouchableOpacity>
                     )}
 
                     {multiple && (
+                        <TouchableOpacity onPress={() => setZoomPictures(true)}>
                         <View
                             style={[
                                 styles.gridContainer,
@@ -244,6 +256,7 @@ export const Post: React.FC<PostProps> = memo(
                                 ))}
                             </View>
                         </View>
+                        </TouchableOpacity>
                     )}
 
                     <View style={styles.footer}>

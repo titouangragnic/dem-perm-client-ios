@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
+import {RelativePathString, router, useRouter} from 'expo-router';
 import { ThemedView } from '@/components/themed-view';
 import { Colors, Spacing } from '@/constants/theme';
 import { InputBar } from '@/stories/InputBar';
@@ -33,6 +33,12 @@ export default function ResearchScreen() {
             post.author.displayName.toLowerCase().includes(searchText.toLowerCase())
         );
     }, [searchText, forYouData.posts]);
+
+    function handleOpenProfile(){
+        //FIXME open profile tab if it's the actual connected user
+        router.push({pathname: `/(tabs)/research/profile/[id]`,
+            params: { id: "id" }});/* FIXME with userID*/
+    }
 
     return (
         <ThemedView style={styles.container as ViewStyle}>
@@ -82,13 +88,14 @@ export default function ResearchScreen() {
                                         level={0}
                                         likeCount={post.likeCount}
                                         onPress={() => router.push({
-                                            pathname: '/(tabs)/postDetail',
+                                            pathname: '/(tabs)/research/postDetail',
                                             params: { id: post.id }
                                         })}
                                         onPressComment={() => {}}
                                         onPressLike={() => {}}
                                         onPressRepost={() => {}}
                                         onPressShare={() => {}}
+                                        onPressUser={handleOpenProfile}
                                         text={post.content || ''}
                                         username={post.author.displayName}
                                         avatarUri={post.author.profilePictureUrl}

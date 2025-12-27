@@ -1,22 +1,19 @@
-import React, {useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, ActivityIndicator} from 'react-native';
-import {useRouter} from 'expo-router';
+import { router } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 
-import { ThemedView } from '@/components/themed-view';
-import {ProfileHeader} from "@/stories/ProfileHeader";
-import {Profile} from "@/api/types/profile/profile";
-import {Post} from "@/stories/Post";
-import {Button} from "@/stories/Button";
 import { userService } from '@/api/services/user.service';
 import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { Button } from "@/stories/Button";
+import { ProfileHeader } from "@/stories/ProfileHeader";
 
 export default function ProfileScreen() {
 
     const [profile, setProfile] = useState<any>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    const router = useRouter();
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleMyVotesPress = () => {
         router.navigate("/profile/votes");
@@ -51,6 +48,12 @@ export default function ProfileScreen() {
             setLoading(false);
         }
     };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchProfile();
+        setRefreshing(false);
+    }, []);
 
     useEffect(() => {
         fetchProfile();

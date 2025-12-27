@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, View, Text } from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
+import {StyleSheet, ScrollView, View, Text, RefreshControl} from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
@@ -9,7 +9,7 @@ import { Domain } from '@/stories/Domain';
 import { Chip } from '@/stories/Chip';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { getForum } from '@/api/mock/functions';
+import {getForum, getMyForums} from '@/api/mock/functions';
 import { FullForum } from '@/api/types/forum/full-forum';
 
 export default function ForumHomeScreen() {
@@ -19,16 +19,27 @@ export default function ForumHomeScreen() {
     const params = useLocalSearchParams();
     
     const [forumData, setForumData] = useState<FullForum | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         // Récupérer l'ID du forum depuis les paramètres
         const forumId = params.forumId ? parseInt(params.forumId as string) : 101;
-        
+
         // Charger le forum et ses posts
         const loadedForum = getForum(forumId);
         if (loadedForum) {
             setForumData(loadedForum);
         }
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+       handleGetData();
     }, [params.forumId]);
 
     const handleLeaveForum = () => {
@@ -96,6 +107,8 @@ export default function ForumHomeScreen() {
             <ScrollView 
                 style={[styles.scrollView, { backgroundColor: Colors[colorScheme].background }]}
                 contentContainerStyle={styles.contentContainer}
+                refreshControl={<RefreshControl
+                    refreshing={refreshing} onRefresh={onRefresh} />}
             >
                 {/* Section informations du forum */}
                 <View style={[styles.forumInfoSection, { backgroundColor: Colors[colorScheme].primary }]}>
