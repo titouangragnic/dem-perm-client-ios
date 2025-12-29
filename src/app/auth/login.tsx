@@ -42,6 +42,7 @@ export default function Login() {
   const handleCompleteProfile = async () => {
     try {
       await completeProfile(username, biography, location, isPrivate);
+      router.replace("/feed") // il y avait pas de redirectoin après la complétion du profil.
       // La navigation sera gérée automatiquement par le context
     } catch (e: any) {
       alert("Erreur lors de la création du profil: " + (e.message || e))

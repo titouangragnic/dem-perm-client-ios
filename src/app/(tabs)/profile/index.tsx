@@ -20,7 +20,7 @@ export default function ProfileScreen() {
     }
 
     const handleModifyPress = () => {
-
+        router.navigate("/profile/edit");
     }
 
     const handleSettingsPress = () => {
