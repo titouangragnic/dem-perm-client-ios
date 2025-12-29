@@ -114,8 +114,9 @@ export default function ThemeForumsScreen() {
     }
   };
 
-  const handleForumPress = (forumId: number) => {
+  const handleForumPress = (forumId: string) => {
     // Navigation vers la page du forum
+    console.log("Naviguer vers le forum:", forumId);
     router.push({
       pathname: "/(tabs)/forums/forumHome",
       params: { forumId },

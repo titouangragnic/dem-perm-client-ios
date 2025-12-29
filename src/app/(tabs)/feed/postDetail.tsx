@@ -1,4 +1,5 @@
 import { getPost } from '@/api/mock/functions';
+import { postService } from '@/api/services/post.service';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
@@ -23,10 +24,10 @@ export default function PostDetailScreen() {
     const insets = useSafeAreaInsets();
     const [refreshing, setRefreshing] = useState(false);
 
-    const handleGetData = () => {
-        const postId = parseInt(params.id as string);
+    const handleGetData = async () => {
+        const postId = params.id as string;
         if (postId) {
-            const post = getPost(postId);
+            const post = await postService.getPostById(postId);
             if (post) {
                 setFullPost(post);
             }

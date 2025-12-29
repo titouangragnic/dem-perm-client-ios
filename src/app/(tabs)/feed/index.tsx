@@ -66,7 +66,7 @@ export default function FeedScreen() {
                         avatarUri={item.author.profilePictureUrl}
                         date={formatDate(item.createdAt)}
                         text={item.content}
-                        images={item.medias.map(m => m.mediaUrl)}
+                        images={item.medias ? item.medias.map(m => m.mediaUrl) : []}
                         likeCount={item.likeCount}
                         commentCount={item.commentCount}
                         level={0}

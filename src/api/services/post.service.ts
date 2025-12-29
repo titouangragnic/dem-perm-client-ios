@@ -38,6 +38,7 @@ interface PostServerDto {
 
 function postServerDtoToFullPost(dto: PostServerDto): FullPost {
     const post = new FullPost();
+    post.post = new SimplePost();
     post.post.id = dto.post_id;
     post.post.content = dto.content;
     post.post.createdAt = new Date(dto.created_at);
@@ -131,7 +132,7 @@ export const postService = {
    * Récupère un post par son ID
    * GET /api/v1/posts/{post_id}/
    */
-  async getPostById(postId: number): Promise<FullPost> {
+  async getPostById(postId: string): Promise<FullPost> {
     try {
       const response = await socialApiClient.get<PostServerDto>(`/api/v1/posts/${postId}/`);
       return postServerDtoToFullPost(response.data);
@@ -145,7 +146,7 @@ export const postService = {
    * Supprime un post
    * DELETE /api/v1/posts/{post_id}/delete/
    */
-  async deletePost(postId: number): Promise<void> {
+  async deletePost(postId: string): Promise<void> {
     try {
       await socialApiClient.delete(`/api/v1/posts/${postId}/delete/`);
     } catch (error: any) {

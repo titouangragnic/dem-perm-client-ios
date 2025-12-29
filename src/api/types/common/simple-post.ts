@@ -10,6 +10,7 @@ export class SimplePost {
     id!: string;
     forum!: SimpleForum | null;
     author!: SimpleUser;
+    title!: string;
     content!: string;
     medias!: Media[];
     likeCount!: number;

@@ -11,7 +11,7 @@ export interface DomainDto {
 }
 
 export interface SubforumsDto {
-  subforums_id: string;
+  subforum_id: string;
   name: string;
   description: string;
   parent_domain_id: string;
@@ -38,7 +38,7 @@ function DomainDtosToDomains(domainDtos: DomainDto[]): Domain[] {
 
 function SubforumsDtoToSimpleForum(subforumDto: SubforumsDto): SimpleForum {
   const simpleForum = new SimpleForum();
-  simpleForum.id = subforumDto.subforums_id;
+  simpleForum.id = subforumDto.subforum_id;
   simpleForum.title = subforumDto.name;
   simpleForum.description = subforumDto.description;
   simpleForum.domains = [];
