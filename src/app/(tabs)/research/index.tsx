@@ -6,9 +6,11 @@ import { Colors, Spacing } from '@/constants/theme';
 import { InputBar } from '@/stories/InputBar';
 import { ProfileCard } from '@/stories/Profilecard';
 import { Post } from '@/stories/Post';
-import { getForYouPage } from '@/api/mock/functions';
+// import { getForYouPage } from '@/api/mock/functions';
 import { useThemeContext } from '@/contexts/theme-context';
 import {SafeAreaView} from "react-native-safe-area-context";
+import { ForYouResults } from '@/api/types/for-you-page/for-you-results';
+import { postService } from '@/api/services/post.service';
 
 export default function ResearchScreen() {
     const [searchText, setSearchText] = useState('');
@@ -16,28 +18,41 @@ export default function ResearchScreen() {
     const router = useRouter();
     const palette = Colors[colorScheme];
 
-    const forYouData = useMemo(() => getForYouPage(), []);
+    const [users, setUsers] = useState<ForYouResults['users']>([]);
+    const [posts, setPosts] = useState<ForYouResults['posts']>([]);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            const res = new ForYouResults();
+            res.users = []; // n'est pas implementer
+            res.posts = await postService.getDiscoverPosts();
+            setUsers(res.users);
+            setPosts(res.posts);
+        };
+        fetchData();
+    }, []);
 
     // Filtrer les résultats en fonction du texte de recherche
     const filteredUsers = useMemo(() => {
-        if (!searchText.trim()) return forYouData.users;
-        return forYouData.users.filter(profile =>
+        if (!searchText.trim()) return users;
+        return users.filter((profile: any) =>
             profile.user.displayName.toLowerCase().includes(searchText.toLowerCase())
         );
-    }, [searchText, forYouData.users]);
+    }, [searchText, users]);
 
     const filteredPosts = useMemo(() => {
-        if (!searchText.trim()) return forYouData.posts;
-        return forYouData.posts.filter(post =>
+        if (!searchText.trim()) return posts;
+        return posts.filter((post: any) =>
             post.content?.toLowerCase().includes(searchText.toLowerCase()) ||
             post.author.displayName.toLowerCase().includes(searchText.toLowerCase())
         );
-    }, [searchText, forYouData.posts]);
+    }, [searchText, posts]);
 
-    function handleOpenProfile(){
+    function handleOpenProfile(userId: string){
+
         //FIXME open profile tab if it's the actual connected user
         router.push({pathname: `/(tabs)/research/profile/[id]`,
-            params: { id: "id" }});/* FIXME with userID*/
+            params: { id: userId }});/* FIXME with userID*/
     }
 
     return (
@@ -95,7 +110,7 @@ export default function ResearchScreen() {
                                         onPressLike={() => {}}
                                         onPressRepost={() => {}}
                                         onPressShare={() => {}}
-                                        onPressUser={handleOpenProfile}
+                                        onPressUser={() => handleOpenProfile(post.author.id)}
                                         text={post.content || ''}
                                         username={post.author.displayName}
                                         avatarUri={post.author.profilePictureUrl}

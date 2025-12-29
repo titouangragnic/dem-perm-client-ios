@@ -1,4 +1,6 @@
 import { socialApiClient } from '../client';
+import { SimpleUser } from '../types/common/simple-user';
+import { Profile } from '../types/profile/profile';
 
 export interface CreateUserDto {
   username: string;
@@ -16,17 +18,29 @@ export interface UpdateUserDto {
   privacy?: 'public' | 'private';
 }
 
-export interface UserProfile {
-  id: string;
-  firebaseUid: string;
+interface UserProfileDto {
+  user_id?: string;
   username: string;
-  biography?: string;
+  display_name: string;
+  bio?: string;
+  profile_picture_url?: string;
   location?: string;
-  isPrivate: boolean;
   createdAt: string;
-  updatedAt: string;
-  // Ajoutez d'autres champs selon votre backend
 }
+
+function UserProfileDtoToProfile(dto: UserProfileDto): Profile {
+  const profile = new Profile();
+  profile.user = new SimpleUser();
+
+  profile.user.id = dto.user_id!;
+  profile.user.displayName = dto.display_name;
+  profile.user.profilePictureUrl = dto.profile_picture_url || '';
+  profile.bio = dto.bio || '';
+  profile.voteCount = 0; // FIXME: to be implemented
+  profile.posts = []; // FIXME: to be implemented
+  
+  return profile;
+};
 
 /**
  * Service pour interagir avec l'API Social (localhost:8000)
@@ -36,10 +50,10 @@ export const userService = {
    * Crée un nouvel utilisateur sur le backend social
    * POST /api/v1/users/
    */
-  async createUser(userData: CreateUserDto): Promise<UserProfile> {
+  async createUser(userData: CreateUserDto): Promise<Profile> {
     try {
-      const response = await socialApiClient.post<UserProfile>('/api/v1/users/', userData);
-      return response.data;
+      const response = await socialApiClient.post<UserProfileDto>('/api/v1/users/', userData);
+      return UserProfileDtoToProfile(response.data);
     } catch (error: any) {
       console.error('Erreur lors de la création de l\'utilisateur:', error.response?.data || error.message);
       throw error;
@@ -50,11 +64,11 @@ export const userService = {
    * Récupère les informations de l'utilisateur connecté
    * GET /api/v1/users/me
    */
-  async getMe(): Promise<UserProfile | null> {
+  async getMe(): Promise<Profile | null> {
     try {
       const response = await socialApiClient.get('/api/v1/users/me/');
       const res = response.data;
-      return res === "" ? null : res;
+      return res === "" ? null : UserProfileDtoToProfile(res as UserProfileDto);
     } catch (error: any) {
       console.error('Erreur lors de la récupération du profil:', error.response?.data || error.message);
       throw error;
@@ -65,10 +79,10 @@ export const userService = {
    * Récupère les informations d'un utilisateur par son ID
    * GET /api/v1/users/{id}
    */
-  async getUserById(userId: string): Promise<UserProfile> {
+  async getUserById(userId: string): Promise<Profile> {
     try {
-      const response = await socialApiClient.get<UserProfile>(`/api/v1/users/${userId}`);
-      return response.data;
+      const response = await socialApiClient.get<UserProfileDto>(`/api/v1/users/${userId}`);
+      return UserProfileDtoToProfile(response.data);
     } catch (error: any) {
       console.error('Erreur lors de la récupération de l\'utilisateur:', error.response?.data || error.message);
       throw error;
@@ -79,9 +93,9 @@ export const userService = {
    * Met à jour les informations de l'utilisateur connecté
    * PATCH /api/v1/users/me/update/
    */
-  async updateMe(userData: UpdateUserDto): Promise<UserProfile> {
+  async updateMe(userData: UpdateUserDto): Promise<Profile> {
     try {
-      const response = await socialApiClient.patch<UserProfile>(
+      const response = await socialApiClient.patch<UserProfileDto>(
         '/api/v1/users/me/update/',
         { data: userData },
         {
@@ -90,7 +104,7 @@ export const userService = {
           },
         }
       );
-      return response.data;
+      return UserProfileDtoToProfile(response.data);
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour du profil:', error.response?.data || error.message);
       throw error;

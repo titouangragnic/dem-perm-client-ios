@@ -46,7 +46,7 @@ function postServerDtoToFullPost(dto: PostServerDto): FullPost {
     
     // Mapping de l'auteur
     const author = new SimpleUser()
-    author.id = parseInt(dto.author_id);
+    author.id = dto.author_id;
     author.profilePictureUrl = "https://picsum.photos/200"; //FIXME
     author.displayName = dto.author_username;
 
@@ -73,7 +73,7 @@ function postServerDtoToSimplePost(dto: PostServerDto): SimplePost {
 
   // Mapping de l'auteur
   const author = new SimpleUser()
-  author.id = parseInt(dto.author_id);
+  author.id = dto.author_id;
   author.profilePictureUrl = "https://picsum.photos/200"; //FIXME
   author.displayName = dto.author_username;
 

@@ -8,16 +8,16 @@ import {Profile} from "@/api/types/profile/profile";
 import {getMyProfile} from "@/api/mock/functions";
 import {Post} from "@/stories/Post";
 import {Button} from "@/stories/Button";
+import { userService } from '@/api/services/user.service';
 
 export default function ProfileScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    console.log(id); //FIXME with getting the profile corresponding to the userId
 
     const [profile, setProfile] = React.useState<Profile>();
     const [refreshing, setRefreshing] = useState(false);
 
-    const handleGetData = () => {
-        const profile : Profile|undefined = getMyProfile();
+    const handleGetData = async () => {
+        const profile : Profile|undefined = await userService.getUserById(id);
         if (profile)
             setProfile(profile);
     };
@@ -46,7 +46,8 @@ export default function ProfileScreen() {
 
     useEffect(() => {
         handleGetData();
-    }, [])
+        console.log(profile)
+    }, [id])
 
     if (!profile) {
         // TODO: Create error screen
