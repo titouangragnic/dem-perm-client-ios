@@ -1,4 +1,4 @@
-import { getFeed } from '@/api/mock/functions';
+import {getDomains, getFeed, getLeaderboard} from '@/api/mock/functions';
 import { SimplePost } from '@/api/types/common/simple-post';
 import { Colors, Spacing } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
@@ -6,8 +6,8 @@ import { Button } from '@/stories/Button';
 import { Logo } from '@/stories/Logo';
 import { Post } from '@/stories/Post';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import {useCallback, useEffect, useState} from 'react';
+import {FlatList, RefreshControl, StyleSheet, View} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function FeedScreen() {
@@ -15,10 +15,21 @@ export default function FeedScreen() {
     const router = useRouter();
     const { colorScheme } = useThemeContext();
     const insets = useSafeAreaInsets();
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
+    const handleGetData = () => {
         const feedPosts = getFeed();
         setPosts(feedPosts);
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        handleGetData();
+        setRefreshing(false);
+    }, []);
+
+    useEffect(() => {
+        handleGetData();
     }, []);
 
     const formatDate = (date: Date) => {
@@ -59,11 +70,13 @@ export default function FeedScreen() {
                         onPressComment={() => {}}
                         onPressRepost={() => {}}
                         onPressShare={() => {}}
-                        onPress={() => router.push(`/(tabs)/postDetail?id=${item.id}`)}
+                        onPress={() => router.push(`/(tabs)/feed/postDetail?id=${item.id}`)}
                     />
                 )}
                 ItemSeparatorComponent={() => <View style={{ height: Spacing.margin }} />}
                 contentContainerStyle={styles.listContent}
+                refreshControl={<RefreshControl
+                    refreshing={refreshing} onRefresh={onRefresh} />}
             />
         </View>
     );

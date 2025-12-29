@@ -1,15 +1,17 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
-import {router, useRouter} from 'expo-router';
+import {router, useLocalSearchParams, useRouter} from 'expo-router';
 
 import { ThemedView } from '@/components/themed-view';
 import {ProfileHeader} from "@/stories/ProfileHeader";
 import {Profile} from "@/api/types/profile/profile";
-import {getFavorites, getMyProfile} from "@/api/mock/functions";
+import {getMyProfile} from "@/api/mock/functions";
 import {Post} from "@/stories/Post";
 import {Button} from "@/stories/Button";
 
 export default function ProfileScreen() {
+    const { id } = useLocalSearchParams<{ id: string }>();
+    console.log(id); //FIXME with getting the profile corresponding to the userId
 
     const [profile, setProfile] = React.useState<Profile>();
     const [refreshing, setRefreshing] = useState(false);
@@ -91,7 +93,7 @@ export default function ProfileScreen() {
                 </ScrollView>
             </ThemedView>
         </>
-      );
+    );
 }
 
 const styles = StyleSheet.create({
