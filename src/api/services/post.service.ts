@@ -38,7 +38,7 @@ interface PostServerDto {
 
 function postServerDtoToFullPost(dto: PostServerDto): FullPost {
     const post = new FullPost();
-    post.post.id = parseInt(dto.post_id);
+    post.post.id = dto.post_id;
     post.post.content = dto.content;
     post.post.createdAt = new Date(dto.created_at);
     post.post.updatedAt = new Date(dto.updated_at);
@@ -53,7 +53,7 @@ function postServerDtoToFullPost(dto: PostServerDto): FullPost {
     
     // Mapping du forum
     const forum = new SimpleForum();
-    forum.id = parseInt(dto.subforum_id);
+    forum.id = dto.subforum_id;
     post.post.forum = forum;
     
     // Initialisation des tableaux vides
@@ -65,7 +65,7 @@ function postServerDtoToFullPost(dto: PostServerDto): FullPost {
 
 function postServerDtoToSimplePost(dto: PostServerDto): SimplePost {
   const post = new SimplePost();
-  post.id = parseInt(dto.post_id);
+  post.id = dto.post_id;
   post.content = dto.content;
   post.createdAt = new Date(dto.created_at);
   post.updatedAt = new Date(dto.updated_at);

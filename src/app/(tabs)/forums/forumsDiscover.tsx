@@ -5,7 +5,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Domain } from '@/stories/Domain';
-import { getDomains } from '@/api/mock/functions';
+import { domainsService } from '@/api/services/domains.service';
 import { Domain as DomainType } from '@/api/types/forum/domain';
 import { iconVariants } from '@/stories/utils';
 
@@ -34,8 +34,11 @@ export default function ForumsDiscoverScreen() {
 
     useEffect(() => {
         // Charger les domaines au montage du composant
-        const loadedDomains = getDomains();
-        setDomains(loadedDomains);
+        const fetchDomains = async () => {
+            const loadedDomains = await domainsService.getDomains();
+            setDomains(loadedDomains);
+        };
+        fetchDomains();
     }, []);
 
     const handleDomainPress = (domainId: number) => {

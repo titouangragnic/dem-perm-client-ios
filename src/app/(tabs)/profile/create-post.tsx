@@ -3,8 +3,8 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Keyboard,
-  TouchableWithoutFeedback,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router'; // Added useLocalSearchParams
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +19,17 @@ import { Button } from '@/stories/Button';
 import { postService } from "@/api/services/post.service";
 import { SimpleForum } from "@/api/types/forum/simple-forum"; // Ensure this path is correct
 
+// Helper pour les alertes cross-platform
+const showAlert = (title: string, message: string, onOk?: () => void) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n${message}`);
+    onOk?.();
+  } else {
+    const { Alert } = require('react-native');
+    Alert.alert(title, message, onOk ? [{ text: 'OK', onPress: onOk }] : undefined);
+  }
+};
+
 export default function CreatePostScreen() {
   const router = useRouter();
   const { forumData } = useLocalSearchParams<{ forumData: string }>(); // Retrieve param
@@ -27,6 +38,9 @@ export default function CreatePostScreen() {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [newMediaUrl, setNewMediaUrl] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
 
   // Parse the forum object safely
   const targetForum: SimpleForum | null = useMemo(() => {
@@ -40,28 +54,66 @@ export default function CreatePostScreen() {
   }, [forumData]);
 
   const handleAddMedia = () => {
-    console.log('Add media pressed');
+    if (!newMediaUrl.trim()) {
+      showAlert('Erreur', 'Veuillez entrer une URL de média');
+      return;
+    }
+    
+    // Basic URL validation
+    if (!newMediaUrl.startsWith('http://') && !newMediaUrl.startsWith('https://')) {
+      showAlert('Erreur', 'L\'URL doit commencer par http:// ou https://');
+      return;
+    }
+    
+    setMediaUrls([...mediaUrls, newMediaUrl.trim()]);
+    setNewMediaUrl('');
+  };
+
+  const handleRemoveMedia = (index: number) => {
+    setMediaUrls(mediaUrls.filter((_, i) => i !== index));
   };
 
   const handlePublish = async () => {
-    if (!targetForum) {
-      console.error("No forum selected");
+    console.log('handlePublish called');
+    console.log('title:', title);
+    console.log('content:', content);
+    console.log('targetForum:', targetForum);
+    
+    if (!title.trim()) {
+      showAlert('Erreur', 'Veuillez entrer un titre');
       return;
     }
 
+    if (!content.trim()) {
+      showAlert('Erreur', 'Veuillez entrer un contenu');
+      return;
+    }
+
+    if (!targetForum) {
+      showAlert('Erreur', 'Aucun forum sélectionné. Veuillez accéder à cette page depuis un forum.');
+      return;
+    }
+
+    setIsPublishing(true);
+
     const payload = {
-      title,
-      content,
-      medias: [],
-      subforum_id: targetForum.id.toString(), // Use the ID from the param
+      title: title.trim(),
+      content: content.trim(),
+      subforum_id: targetForum.id.toString(),
     };
 
+    console.log('Sending payload:', payload);
+
     try {
-      await postService.createPost(payload);
-      router.back();
-    } catch (error) {
+      const result = await postService.createPost(payload);
+      console.log('Post created successfully:', result);
+      showAlert('Succès', 'Votre post a été publié', () => router.back());
+    } catch (error: any) {
       console.error("Failed to publish post", error);
-      // Handle error (e.g. show toast)
+      console.error("Error details:", error.response?.data || error.message);
+      showAlert('Erreur', `Impossible de publier le post: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -120,60 +172,92 @@ export default function CreatePostScreen() {
         <View style={styles.rightButton} />
       </View>
 
-      <TouchableWithoutFeedback
-        onPress={Keyboard.dismiss}
-        accessible={false}
+      <ScrollView 
+        style={styles.flex}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.flex}>
-          <View style={styles.content}>
-            <ThemedText style={styles.label}>
-              Titre du poste
-            </ThemedText>
+        <View style={styles.content}>
+          <ThemedText style={styles.label}>
+            Titre du poste
+          </ThemedText>
 
+          <InputBar
+            placeholder="Titre ..."
+            value={title}
+            onChangeText={setTitle}
+            backgroundColor="background"
+            hideRightIcon
+            bigInput={false}
+            style={styles.titleInput}
+          />
+
+          {/* Post label */}
+          <ThemedText style={styles.label}>Poste</ThemedText>
+
+          {/* Content input (big) */}
+          <InputBar
+            placeholder="Contenu ..."
+            value={content}
+            onChangeText={setContent}
+            bigInput
+            hideRightIcon
+            style={styles.contentInput}
+          />
+
+          {/* Media URL Section */}
+          <ThemedText style={styles.label}>Médias (URLs)</ThemedText>
+          
+          <View style={styles.mediaInputRow}>
             <InputBar
-              placeholder="Titre ..."
-              value={title}
-              onChangeText={setTitle}
+              placeholder="https://exemple.com/image.jpg"
+              value={newMediaUrl}
+              onChangeText={setNewMediaUrl}
               backgroundColor="background"
               hideRightIcon
-              bigInput={false}
-              style={styles.titleInput}
+              style={styles.mediaInput}
             />
-
-            {/* Post label */}
-            <ThemedText style={styles.label}>Poste</ThemedText>
-
-            {/* Content input (big) */}
-            <InputBar
-              placeholder="Contenu ..."
-              value={content}
-              onChangeText={setContent}
-              bigInput
-              hideRightIcon
-              style={styles.contentInput}
-            />
-
             <Button
-              icon="image"
+              icon="add"
               size="large"
               backgroundColor="primary"
-              label="Ajouter un média"
+              label=""
               onPress={handleAddMedia}
+              style={styles.addMediaButton}
             />
           </View>
 
-          <ThemedView style={styles.footer}>
-            {targetForum &&
-            <Button
-              size="large"
-              backgroundColor="highlight1"
-              label="Publier"
-              onPress={handlePublish}
-              style={styles.publishButton}
-            />}
-          </ThemedView>
+          {/* Liste des médias ajoutés */}
+          {mediaUrls.length > 0 && (
+            <View style={styles.mediaList}>
+              {mediaUrls.map((url, index) => (
+                <View key={index} style={[styles.mediaItem, { backgroundColor: Colors[colorScheme].primary }]}>
+                  <ThemedText style={styles.mediaUrl} numberOfLines={1}>
+                    {url}
+                  </ThemedText>
+                  <TouchableOpacity onPress={() => handleRemoveMedia(index)}>
+                    <IconSymbol
+                      name="xmark.circle.fill"
+                      size={20}
+                      color={Colors[colorScheme].highlight2}
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
-      </TouchableWithoutFeedback>
+
+        <ThemedView style={styles.footer}>
+          <Button
+            size="large"
+            backgroundColor="highlight1"
+            label={isPublishing ? "Publication..." : "Poster"}
+            onPress={handlePublish}
+            style={styles.publishButton}
+          />
+        </ThemedView>
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -184,6 +268,9 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   header: {
     flexDirection: 'row',
@@ -233,9 +320,38 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     marginVertical: 0,
   },
+  mediaInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.margin,
+  },
+  mediaInput: {
+    flex: 1,
+    marginHorizontal: 0,
+    marginVertical: 0,
+  },
+  addMediaButton: {
+    width: 50,
+  },
+  mediaList: {
+    gap: Spacing.margin,
+  },
+  mediaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.margin,
+    borderRadius: Spacing.borderRadius,
+  },
+  mediaUrl: {
+    flex: 1,
+    fontSize: Typography.sizes.general,
+    marginRight: Spacing.margin,
+  },
   footer: {
     paddingHorizontal: Spacing.padding,
     paddingBottom: Spacing.padding,
+    paddingTop: Spacing.padding,
   },
   publishButton: {
     alignSelf: 'stretch',
