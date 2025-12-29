@@ -1,6 +1,7 @@
-import { socialApiClient } from '../client';
-import { SimpleForum } from '../types/forum/simple-forum';
-import { Domain } from '../types/forum/domain';
+import { socialApiClient } from "../client";
+import { SimpleForum } from "../types/forum/simple-forum";
+import { Domain } from "../types/forum/domain";
+import { CreateForumDto } from "../dtos/forum.dto";
 // DTOs for domains
 export interface DomainDto {
   domain_id: string;
@@ -18,21 +19,21 @@ export interface SubforumsDto {
   created_at: string;
 }
 
-export interface CreateForumDto {
-  name: string;
-  description: string;
-  parent_subforum_id?: string;
-}
+// export interface CreateForumDto {
+//   name: string;
+//   description: string;
+//   parent_subforum_id?: string;
+// }
 
 function DomainDtoToDomain(domainDto: DomainDto): Domain {
   return {
-    id: parseInt(domainDto.domain_id),
+    id: domainDto.domain_id,
     name: domainDto.name,
   };
 }
 
 function DomainDtosToDomains(domainDtos: DomainDto[]): Domain[] {
-  return domainDtos.map(domainDto => DomainDtoToDomain(domainDto));
+  return domainDtos.map((domainDto) => DomainDtoToDomain(domainDto));
 }
 
 function SubforumsDtoToSimpleForum(subforumDto: SubforumsDto): SimpleForum {
@@ -45,8 +46,12 @@ function SubforumsDtoToSimpleForum(subforumDto: SubforumsDto): SimpleForum {
   return simpleForum;
 }
 
-function SubforumsDtosToSimpleForums(subforumDtos: SubforumsDto[]): SimpleForum[] {
-  return subforumDtos.map(subforumDto => SubforumsDtoToSimpleForum(subforumDto));
+function SubforumsDtosToSimpleForums(
+  subforumDtos: SubforumsDto[]
+): SimpleForum[] {
+  return subforumDtos.map((subforumDto) =>
+    SubforumsDtoToSimpleForum(subforumDto)
+  );
 }
 
 /**
@@ -59,10 +64,15 @@ export const domainsService = {
    */
   async getDomains(): Promise<Domain[]> {
     try {
-      const response = await socialApiClient.get<DomainDto[]>('/api/v1/domains/');
+      const response = await socialApiClient.get<DomainDto[]>(
+        "/api/v1/domains/"
+      );
       return DomainDtosToDomains(response.data);
     } catch (error: any) {
-      console.error('Erreur lors de la récupération des domaines:', error.response?.data || error.message);
+      console.error(
+        "Erreur lors de la récupération des domaines:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   },
@@ -73,10 +83,15 @@ export const domainsService = {
    */
   async getDomainById(domainId: string): Promise<Domain> {
     try {
-      const response = await socialApiClient.get<DomainDto>(`/api/v1/domains/${domainId}/`);
+      const response = await socialApiClient.get<DomainDto>(
+        `/api/v1/domains/${domainId}/`
+      );
       return DomainDtoToDomain(response.data);
     } catch (error: any) {
-      console.error('Erreur lors de la récupération du domaine:', error.response?.data || error.message);
+      console.error(
+        "Erreur lors de la récupération du domaine:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   },
@@ -87,10 +102,15 @@ export const domainsService = {
    */
   async getSubforums(domainId: string): Promise<SimpleForum[]> {
     try {
-      const response = await socialApiClient.get<SubforumsDto[]>(`/api/v1/domains/${domainId}/subforums/`);
+      const response = await socialApiClient.get<SubforumsDto[]>(
+        `/api/v1/domains/${domainId}/subforums/`
+      );
       return SubforumsDtosToSimpleForums(response.data);
     } catch (error: any) {
-      console.error('Erreur lors de la récupération des sous-forums:', error.response?.data || error.message);
+      console.error(
+        "Erreur lors de la récupération des sous-forums:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   },
@@ -99,7 +119,10 @@ export const domainsService = {
    * Crée un sous-forum dans un domaine
    * POST /api/v1/domains/{domain_id}/subforums/create/
    */
-  async createSubforum(domainId: string, forumData: CreateForumDto): Promise<SimpleForum> {
+  async createSubforum(
+    domainId: string,
+    forumData: CreateForumDto
+  ): Promise<SimpleForum> {
     try {
       const response = await socialApiClient.post<SubforumsDto>(
         `/api/v1/domains/${domainId}/subforums/create/`,
@@ -107,7 +130,10 @@ export const domainsService = {
       );
       return SubforumsDtoToSimpleForum(response.data);
     } catch (error: any) {
-      console.error('Erreur lors de la création du sous-forum:', error.response?.data || error.message);
+      console.error(
+        "Erreur lors de la création du sous-forum:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   },
