@@ -15,7 +15,7 @@ export const getFeed = function () {
     return db.posts;
 }
 
-export const getPost = function (id: number) {
+export const getPost = function (id: string) {
     return db.fullPosts.find(post => post.post.id == id);
 }
 
