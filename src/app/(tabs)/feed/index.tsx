@@ -103,6 +103,7 @@ export default function FeedScreen() {
 
           return (
             <Post
+              title={item.title || ""}
               username={item.author.displayName}
               avatarUri={item.author.profilePictureUrl}
               date={formatDate(item.createdAt)}
@@ -116,7 +117,9 @@ export default function FeedScreen() {
               onPressComment={() => {}}
               onPressRepost={() => {}}
               onPressShare={() => {}}
-              onPress={() => router.push(`/(tabs)/feed/postDetail?id=${item.id}`)}
+              onPress={() =>
+                router.push(`/(tabs)/feed/postDetail?id=${item.id}`)
+              }
             />
           );
         }}

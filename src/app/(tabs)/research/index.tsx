@@ -132,6 +132,7 @@ export default function ResearchScreen() {
                                 return (
                                     <View key={post.id} style={styles.postWrapper as ViewStyle}>
                                         <Post
+                                            title={post.title || ''}
                                             commentCount={post.commentCount}
                                             date={post.createdAt}
                                             images={post.medias?.map(m => m.mediaUrl) || []}

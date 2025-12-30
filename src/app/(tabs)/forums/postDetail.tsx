@@ -1,10 +1,9 @@
-import {getMyForums, getPost} from '@/api/mock/functions';
-import { postService } from '@/api/services/post.service';
+import { getMyForums, getPost } from '@/api/mock/functions';
+import { postService, CreateCommentDto } from '@/api/services/post.service';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
-import { useThemeContext } from '@/contexts/theme-context';
-import { Post } from '@/stories/Post';
+import { useThemeContext } from '@/contexts/theme-context';import { InputBar } from '@/stories/InputBar';import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
 import {RelativePathString, router, useLocalSearchParams, useRouter} from 'expo-router';
@@ -18,7 +17,9 @@ type FlatComment = CommentType & {
 
 export default function ForumPostDetailScreen() {
     const [fullPost, setFullPost] = useState<FullPost | null>(null);
-    const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+    const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+    const [commentText, setCommentText] = useState('');
+    const [isCreatingComment, setIsCreatingComment] = useState(false);
     const router = useRouter();
     const params = useLocalSearchParams();
     const { colorScheme } = useThemeContext();
@@ -30,6 +31,15 @@ export default function ForumPostDetailScreen() {
         if (postId) {
             const post = await postService.getPostById(postId);
             if (post) {
+                // Charger les commentaires depuis l'API
+                try {
+                    const commentsData = await postService.getPostComments(postId);
+                    // Convertir les commentaires plats en structure hiérarchisée
+                    post.comments = postService.convertFlatCommentsToHierarchical(commentsData);
+                } catch (error) {
+                    console.error('Erreur lors du chargement des commentaires:', error);
+                    post.comments = [];
+                }
                 setFullPost(post);
             }
         }
@@ -77,7 +87,7 @@ export default function ForumPostDetailScreen() {
         ? flattenComments(fullPost.comments)
         : [];
 
-    const handleLike = async (postId: number, isComment: boolean = false) => {
+    const handleLike = async (postId: string, isComment: boolean = false) => {
         if (!fullPost) return;
 
         const isLiked = isComment 
@@ -114,6 +124,26 @@ export default function ForumPostDetailScreen() {
         } catch (e) {
             // Revert on error
             handleGetData();
+        }
+    };
+
+    const handleCreateComment = async () => {
+        if (!fullPost || !commentText.trim()) return;
+
+        setIsCreatingComment(true);
+        try {
+            const createCommentDto: CreateCommentDto = {
+                content: commentText,
+                parent_comment_id: null,
+            };
+            await postService.createComment(fullPost.post.id, createCommentDto);
+            setCommentText('');
+            // Recharger les commentaires
+            await handleGetData();
+        } catch (error) {
+            console.error('Erreur lors de la création du commentaire:', error);
+        } finally {
+            setIsCreatingComment(false);
         }
     };
 
@@ -205,6 +235,7 @@ export default function ForumPostDetailScreen() {
                             username={fullPost.post.author.displayName}
                             avatarUri={fullPost.post.author.profilePictureUrl}
                             date={formatDate(fullPost.post.createdAt)}
+                            title={fullPost.post.title}
                             text={fullPost.post.content}
                             images={fullPost.post.medias.map((m) => m.mediaUrl)}
                             likeCount={fullPost.post.likeCount}
@@ -231,8 +262,8 @@ export default function ForumPostDetailScreen() {
                         likeCount={0}
                         commentCount={item.subComments?.length || 0}
                         level={item.level + 1}
-                        liked={likedPosts.has(item.commentId)}
-                        onPressLike={() => handleLike(item.commentId)}
+                        // liked={likedPosts.has(item.commentId)}
+                        // onPressLike={() => handleLike(item.commentId)}
                         onPressComment={() => {}}
                         onPressUser={handleOpenProfile}
                     />
@@ -283,5 +314,9 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: Typography.sizes.general,
+    },
+    inputContainer: {
+        paddingHorizontal: Spacing.margin,
+        paddingTop: Spacing.padding,
     },
 });

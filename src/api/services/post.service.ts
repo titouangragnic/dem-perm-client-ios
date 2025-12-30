@@ -7,6 +7,7 @@ import {FullPost} from "@/api/types/post/full-post";
 import {SimpleUser} from "@/api/types/common/simple-user";
 import {SimpleForum} from "@/api/types/forum/simple-forum";
 import {SimplePost} from "@/api/types/common/simple-post";
+import { Comment } from "@/api/types/post/comment";
 
 export interface CreatePostDto {
   title : string;
@@ -20,6 +21,62 @@ export interface Like {
   username: string;
   post_id: string;
   created_at: string;
+}
+
+export interface CreateCommentDto {
+  content: string;
+  parent_comment_id?: string | null;
+}
+
+interface CommentServerDto {
+  comment_id: string;
+  post_id: string;
+  author_id: string;
+  author_username: string;
+  parent_comment_id: string | null;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Convertit les commentaires plats du serveur en structure hiérarchisée
+ */
+function buildHierarchicalComments(flatComments: CommentServerDto[]): Comment[] {
+  const commentMap = new Map<string, Comment>();
+  
+  // Créer tous les commentaires
+  flatComments.forEach(dto => {
+    commentMap.set(dto.comment_id, {
+      commentId: dto.comment_id as any,
+      author: {
+        id: dto.author_id,
+        displayName: dto.author_username,
+        profilePictureUrl: "https://picsum.photos/200",
+      } as SimpleUser,
+      content: dto.content,
+      subComments: [],
+      createdAt: new Date(dto.created_at),
+      updatedAt: new Date(dto.updated_at),
+    });
+  });
+
+  const rootComments: Comment[] = [];
+
+  // Organiser la hiérarchie
+  flatComments.forEach(dto => {
+    const comment = commentMap.get(dto.comment_id)!;
+    if (dto.parent_comment_id) {
+      const parentComment = commentMap.get(dto.parent_comment_id);
+      if (parentComment) {
+        parentComment.subComments.push(comment);
+      }
+    } else {
+      rootComments.push(comment);
+    }
+  });
+
+  return rootComments;
 }
 
 interface PostServerDto {
@@ -40,6 +97,7 @@ async function postServerDtoToFullPost(dto: PostServerDto): Promise<FullPost> {
     const post = new FullPost();
     post.post = new SimplePost();
     post.post.id = dto.post_id;
+    post.post.title = dto.title;
     post.post.content = dto.content;
     post.post.createdAt = new Date(dto.created_at);
     post.post.updatedAt = new Date(dto.updated_at);
@@ -79,6 +137,7 @@ async function postServerDtoToFullPost(dto: PostServerDto): Promise<FullPost> {
 function postServerDtoToSimplePost(dto: PostServerDto): SimplePost {
   const post = new SimplePost();
   post.id = dto.post_id;
+  post.title = dto.title;
   post.content = dto.content;
   post.createdAt = new Date(dto.created_at);
   post.updatedAt = new Date(dto.updated_at);
@@ -210,5 +269,73 @@ export const postService = {
       throw error;
     }
   },
+
+  /**
+   * Récupère les commentaires d'un post
+   * GET /api/v1/comments/posts/{post_id}/
+   */
+  async getPostComments(postId: string): Promise<CommentServerDto[]> {
+    try {
+      const response = await socialApiClient.get<CommentServerDto[]>(`/api/v1/comments/posts/${postId}/`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la récupération des commentaires:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Crée un commentaire sur un post
+   * POST /api/v1/comments/posts/{post_id}/create/
+   */
+  async createComment(postId: string, commentData: CreateCommentDto): Promise<CommentServerDto> {
+    try {
+      const response = await socialApiClient.post<CommentServerDto>(
+        `/api/v1/comments/posts/${postId}/create/`,
+        commentData
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la création du commentaire:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Supprime un commentaire
+   * DELETE /api/v1/comments/{comment_id}/delete/
+   */
+  async deleteComment(commentId: string): Promise<void> {
+    try {
+      await socialApiClient.delete(`/api/v1/comments/${commentId}/delete/`);
+    } catch (error: any) {
+      console.error('Erreur lors de la suppression du commentaire:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Récupère les réponses d'un commentaire
+   * GET /api/v1/comments/{comment_id}/replies/
+   */
+  async getCommentReplies(commentId: string): Promise<CommentServerDto[]> {
+    try {
+      const response = await socialApiClient.get<CommentServerDto[]>(`/api/v1/comments/${commentId}/replies/`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la récupération des réponses:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  /**
+   * Convertit les commentaires plats du serveur en structure hiérarchisée
+   */
+  convertFlatCommentsToHierarchical(flatComments: CommentServerDto[]): Comment[] {
+    return buildHierarchicalComments(flatComments);
+  },
+
+
+
 };
 

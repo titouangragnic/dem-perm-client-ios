@@ -1,9 +1,10 @@
 import { getPost } from '@/api/mock/functions';
-import { postService } from '@/api/services/post.service';
+import { postService, CreateCommentDto } from '@/api/services/post.service';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
+import { InputBar } from '@/stories/InputBar';
 import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +20,8 @@ type FlatComment = CommentType & {
 export default function PostDetailScreen() {
     const [fullPost, setFullPost] = useState<FullPost | null>(null);
     const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+    const [commentText, setCommentText] = useState('');
+    const [isCreatingComment, setIsCreatingComment] = useState(false);
     const router = useRouter();
     const params = useLocalSearchParams();
     const { colorScheme } = useThemeContext();
@@ -30,6 +33,15 @@ export default function PostDetailScreen() {
         if (postId) {
             const post = await postService.getPostById(postId);
             if (post) {
+                // Charger les commentaires depuis l'API
+                try {
+                    const commentsData = await postService.getPostComments(postId);
+                    // Convertir les commentaires plats en structure hiérarchisée
+                    post.comments = postService.convertFlatCommentsToHierarchical(commentsData);
+                } catch (error) {
+                    console.error('Erreur lors du chargement des commentaires:', error);
+                    post.comments = [];
+                }
                 setFullPost(post);
             }
         }
@@ -117,6 +129,26 @@ export default function PostDetailScreen() {
         }
     };
 
+    const handleCreateComment = async () => {
+        if (!fullPost || !commentText.trim()) return;
+
+        setIsCreatingComment(true);
+        try {
+            const createCommentDto: CreateCommentDto = {
+                content: commentText,
+                parent_comment_id: null,
+            };
+            await postService.createComment(fullPost.post.id, createCommentDto);
+            setCommentText('');
+            // Recharger les commentaires
+            await handleGetData();
+        } catch (error) {
+            console.error('Erreur lors de la création du commentaire:', error);
+        } finally {
+            setIsCreatingComment(false);
+        }
+    };
+
     if (!fullPost) {
         return (
             <View
@@ -199,6 +231,7 @@ export default function PostDetailScreen() {
                             username={fullPost.post.author.displayName}
                             avatarUri={fullPost.post.author.profilePictureUrl}
                             date={formatDate(fullPost.post.createdAt)}
+                            title={fullPost.post.title}
                             text={fullPost.post.content}
                             images={fullPost.post.medias.map((m) => m.mediaUrl)}
                             likeCount={fullPost.post.likeCount}
@@ -229,6 +262,18 @@ export default function PostDetailScreen() {
                         onPressComment={() => {}}
                     />
                 )}
+                ListFooterComponent={
+                    <View style={[styles.inputContainer, { paddingBottom: insets.bottom + Spacing.padding }]}>
+                        <InputBar
+                            placeholder="Écrire un commentaire..."
+                            value={commentText}
+                            onChangeText={setCommentText}
+                            rightIcon="send"
+                            onActionPress={handleCreateComment}
+                            editable={!isCreatingComment}
+                        />
+                    </View>
+                }
                 contentContainerStyle={styles.listContent}
                 refreshControl={<RefreshControl
                     refreshing={refreshing} onRefresh={onRefresh} />}
@@ -275,5 +320,9 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: Typography.sizes.general,
+    },
+    inputContainer: {
+        paddingHorizontal: Spacing.margin,
+        paddingTop: Spacing.padding,
     },
 });

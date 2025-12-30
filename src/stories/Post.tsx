@@ -19,6 +19,7 @@ export type PostProps = {
     avatarUri?: string;
     date: string | Date;
 
+    title?: string;
     text: string;
     images?: string[];
 
@@ -54,6 +55,7 @@ export const Post: React.FC<PostProps> = memo(
          username,
          avatarUri,
          date,
+         title,
          text,
          images = [],
          likeCount = 0,
@@ -191,6 +193,18 @@ export const Post: React.FC<PostProps> = memo(
                             </TouchableOpacity>
                         )}
                     </View>
+
+                    {title && (
+                        <Text
+                            style={[
+                                styles.title,
+                                { color: palette.text, fontFamily },
+                            ]}
+                            numberOfLines={3}
+                        >
+                            {title}
+                        </Text>
+                    )}
 
                     <Text
                         style={[
@@ -365,6 +379,11 @@ const styles = StyleSheet.create({
     },
     date: {
         fontSize: 12,
+    },
+
+    title: {
+        fontSize: Typography.sizes.general,
+        fontWeight: 'bold',
     },
 
     text: {
