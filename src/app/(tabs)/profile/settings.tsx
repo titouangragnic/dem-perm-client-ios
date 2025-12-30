@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {Colors, Spacing} from "@/constants/theme";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {ThemedText} from "@/components/themed-text";
@@ -10,7 +10,13 @@ import {router} from "expo-router";
 import {useTheme} from "@/hooks/use-theme";
 import {Settings} from "@/api/types/profile/settings";
 import {getSettings} from "@/api/mock/functions";
-import {UserContext, useUser} from "@/contexts/user-context";
+import {useUser} from "@/contexts/user-context";
+import * as SecureStore from 'expo-secure-store';
+import {getInStoreUsageOfRealData} from "@/api/utils";
+
+async function saveInStoreUsageOfRealData( value: string) {
+    await SecureStore.setItemAsync("usingRealData" , value);
+}
 
 export default function SettingsScreen() {
     const { themeMode, setThemeMode, colorScheme } = useTheme();
@@ -22,6 +28,7 @@ export default function SettingsScreen() {
     const [allowedNotifications, setAllowedNotifications] = useState<boolean>(false);
     const [isLightTheme, setIsLightTheme] = useState<boolean>(colorScheme === 'light');
     const [isAutoTheme, setIsAutoTheme] = useState<boolean>(themeMode === 'auto');
+    const [isUsingMockedData, setIsUsingMockedData] = useState<boolean>(true);
     const { user, logout } = useUser();
 
     useEffect(() => {
@@ -31,6 +38,7 @@ export default function SettingsScreen() {
         setIsLimitedToUndredVotes(_settings.democracy.limitVotes);
         setIsShowingVote(_settings.democracy.shuwMyVote);
         setIsProfilePublic(_settings.social.public);
+        getInStoreUsageOfRealData().then(value => setIsUsingMockedData(value === "false"));
     })
 
     const handleThemeChange = () => {
@@ -65,9 +73,14 @@ export default function SettingsScreen() {
         });
     };
 
+     const handleChangeUsageOfMockedData = () => {
+         saveInStoreUsageOfRealData(isUsingMockedData ? "true" : "false")
+             .then(() => setIsUsingMockedData(!isUsingMockedData));
+    }
+
     return(
         <SafeAreaView style={{ backgroundColor: Colors[colorScheme].background, flex: 1 }}>
-            <ThemedView style={styles.container}>
+            <ScrollView style={styles.container}>
                 <ThemedView style={{flexDirection:"row", marginVertical: 20}}>
                     <Button
                         backgroundColor="background"
@@ -103,6 +116,13 @@ export default function SettingsScreen() {
                         />
                     </ThemedView>
                     <ThemedText type={"title"} style={{marginInline: 22, marginTop: 28}}>Autres</ThemedText>
+                    <ThemedView style={[styles.settingContainer, {backgroundColor} ]}>
+                        <ThemedText type={"title"}>Simuler le backend</ThemedText>
+                        <Toggle
+                            isEnabled={isUsingMockedData}
+                            onValueChange={handleChangeUsageOfMockedData}
+                        />
+                    </ThemedView>
                     <ThemedView style={[styles.settingContainer, {backgroundColor} ]}>
                         <ThemedText type={"title"}>Notifications</ThemedText>
                         <Toggle
@@ -140,7 +160,7 @@ export default function SettingsScreen() {
                         />
                     </ThemedView>
                 </ThemedView>
-            </ThemedView>
+            </ScrollView>
         </SafeAreaView>
     );
 

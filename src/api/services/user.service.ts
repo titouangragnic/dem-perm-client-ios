@@ -1,6 +1,8 @@
 import { socialApiClient } from '../client';
 import { SimpleUser } from '../types/common/simple-user';
 import { Profile } from '../types/profile/profile';
+import {getInStoreUsageOfRealData} from "@/api/utils";
+import {getMyProfile, getProfile} from "@/api/mock/functions";
 
 export interface CreateUserDto {
   username: string;
@@ -65,14 +67,23 @@ export const userService = {
    * GET /api/v1/users/me
    */
   async getMe(): Promise<Profile | null> {
-    try {
-      const response = await socialApiClient.get('/api/v1/users/me/');
-      const res = response.data;
-      return res === "" ? null : UserProfileDtoToProfile(res as UserProfileDto);
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération du profil:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get('/api/v1/users/me/');
+        const res = response.data;
+        return res === "" ? null : UserProfileDtoToProfile(res as UserProfileDto);
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération du profil:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const profile = getMyProfile();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(profile ?? null);
+      }, 300);
+    });
   },
 
   /**
@@ -80,13 +91,25 @@ export const userService = {
    * GET /api/v1/users/{id}
    */
   async getUserById(userId: string): Promise<Profile> {
-    try {
-      const response = await socialApiClient.get<UserProfileDto>(`/api/v1/users/${userId}`);
-      return UserProfileDtoToProfile(response.data);
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération de l\'utilisateur:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<UserProfileDto>(`/api/v1/users/${userId}`);
+        return UserProfileDtoToProfile(response.data);
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const profile = getProfile(parseInt(userId));
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if(profile) {
+          resolve(profile);
+        }
+        reject("Erreur lors de la récupération de l\'utilisateur.");
+      }, 300);
+    });
   },
 
   /**
