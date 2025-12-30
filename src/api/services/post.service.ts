@@ -36,14 +36,26 @@ interface PostServerDto {
     updated_at: string;
 }
 
-function postServerDtoToFullPost(dto: PostServerDto): FullPost {
+async function postServerDtoToFullPost(dto: PostServerDto): Promise<FullPost> {
     const post = new FullPost();
     post.post = new SimplePost();
     post.post.id = dto.post_id;
     post.post.content = dto.content;
     post.post.createdAt = new Date(dto.created_at);
     post.post.updatedAt = new Date(dto.updated_at);
-    
+    post.post.likeCount = dto.likes_count;
+    post.post.commentCount = dto.comments_count;
+    post.post.liked = false;
+    if (dto.likes_count > 0) {
+      if (await postService.likePost(dto.post_id)) {
+        postService.unlikePost(dto.post_id).then(() => post);
+      }
+      else {
+        post.post.liked = true;
+      } 
+
+    }
+
     // Mapping de l'auteur
     const author = new SimpleUser()
     author.id = dto.author_id;
@@ -159,11 +171,14 @@ export const postService = {
    * Like un post
    * POST /api/v1/posts/{post_id}/like/
    */
-  async likePost(postId: number): Promise<Like> {
+  async likePost(postId: string): Promise<Like | null> {
     try {
-      const response = await socialApiClient.post<Like>(`/api/v1/posts/${postId}/like/`);
-      return response.data;
+      const response = await socialApiClient.post(`/api/v1/posts/${postId}/like/`);
+      return response.data as Like;
     } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        return null;
+      }
       console.error('Erreur lors du like du post:', error.response?.data || error.message);
       throw error;
     }
@@ -173,7 +188,7 @@ export const postService = {
    * Récupère les likes d'un post
    * GET /api/v1/posts/{post_id}/likes/
    */
-  async getPostLikes(postId: number): Promise<number> {
+  async getPostLikes(postId: string): Promise<number> {
     try {
       const response = await socialApiClient.get<Like[]>(`/api/v1/posts/${postId}/likes/`);
       return response.data.length;
@@ -187,7 +202,7 @@ export const postService = {
    * Unlike un post
    * DELETE /api/v1/posts/{post_id}/unlikes/
    */
-  async unlikePost(postId: number): Promise<void> {
+  async unlikePost(postId: string): Promise<void> {
     try {
       await socialApiClient.delete(`/api/v1/posts/${postId}/unlikes/`);
     } catch (error: any) {

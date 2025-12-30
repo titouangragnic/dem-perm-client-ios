@@ -94,29 +94,66 @@ export default function ResearchScreen() {
                     {/* Section des posts */}
                     {filteredPosts.length > 0 && (
                         <View style={styles.postsSection as ViewStyle}>
-                            {filteredPosts.map((post) => (
-                                <View key={post.id} style={styles.postWrapper as ViewStyle}>
-                                    <Post
-                                        commentCount={post.commentCount}
-                                        date={post.createdAt}
-                                        images={post.medias?.map(m => m.mediaUrl) || []}
-                                        level={0}
-                                        likeCount={post.likeCount}
-                                        onPress={() => router.push({
-                                            pathname: '/(tabs)/research/postDetail',
-                                            params: { id: post.id }
-                                        })}
-                                        onPressComment={() => {}}
-                                        onPressLike={() => {}}
-                                        onPressRepost={() => {}}
-                                        onPressShare={() => {}}
-                                        onPressUser={() => handleOpenProfile(post.author.id)}
-                                        text={post.content || ''}
-                                        username={post.author.displayName}
-                                        avatarUri={post.author.profilePictureUrl}
-                                    />
-                                </View>
-                            ))}
+                            {filteredPosts.map((post) => {
+                                const handleLike = async () => {
+                                    setPosts((prevPosts) =>
+                                        prevPosts.map((p) => {
+                                            if (p.id === post.id) {
+                                                const liked = !p.liked;
+                                                const likeCount =
+                                                    typeof p.likeCount === "number"
+                                                        ? liked
+                                                            ? p.likeCount + 1
+                                                            : p.likeCount - 1
+                                                        : liked
+                                                        ? 1
+                                                        : 0;
+                                                return {
+                                                    ...p,
+                                                    liked,
+                                                    likeCount,
+                                                };
+                                            }
+                                            return p;
+                                        })
+                                    );
+                                    try {
+                                        const currentPost = posts.find((p) => p.id === post.id);
+                                        if (!currentPost?.liked) {
+                                            await postService.likePost(post.id);
+                                        } else {
+                                            await postService.unlikePost(post.id);
+                                        }
+                                    } catch (e) {
+                                        // Optionally handle error and revert state if needed
+                                    }
+                                };
+
+                                return (
+                                    <View key={post.id} style={styles.postWrapper as ViewStyle}>
+                                        <Post
+                                            commentCount={post.commentCount}
+                                            date={post.createdAt}
+                                            images={post.medias?.map(m => m.mediaUrl) || []}
+                                            level={0}
+                                            likeCount={post.likeCount}
+                                            liked={post.liked ?? false}
+                                            onPress={() => router.push({
+                                                pathname: '/(tabs)/research/postDetail',
+                                                params: { id: post.id }
+                                            })}
+                                            onPressComment={() => {}}
+                                            onPressLike={handleLike}
+                                            onPressRepost={() => {}}
+                                            onPressShare={() => {}}
+                                            onPressUser={() => handleOpenProfile(post.author.id)}
+                                            text={post.content || ''}
+                                            username={post.author.displayName}
+                                            avatarUri={post.author.profilePictureUrl}
+                                        />
+                                    </View>
+                                );
+                            })}
                         </View>
                     )}
                 </SafeAreaView>

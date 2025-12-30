@@ -1,4 +1,5 @@
 import { getPost } from '@/api/mock/functions';
+import { postService } from '@/api/services/post.service';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
@@ -17,16 +18,17 @@ type FlatComment = CommentType & {
 
 export default function PostDetailScreen() {
     const [fullPost, setFullPost] = useState<FullPost | null>(null);
+    const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
     const router = useRouter();
     const params = useLocalSearchParams();
     const { colorScheme } = useThemeContext();
     const insets = useSafeAreaInsets();
     const [refreshing, setRefreshing] = useState(false);
 
-    const handleGetData = () => {
-        const postId = parseInt(params.id as string);
+    const handleGetData = async () => {
+        const postId = params.id as string;
         if (postId) {
-            const post = getPost(postId);
+            const post = await postService.getPostById(postId);
             if (post) {
                 setFullPost(post);
             }
@@ -74,6 +76,46 @@ export default function PostDetailScreen() {
     const flatComments: FlatComment[] = fullPost
         ? flattenComments(fullPost.comments)
         : [];
+
+    const handleLike = async (postId: number, isComment: boolean = false) => {
+        if (!fullPost) return;
+
+        const isLiked = isComment 
+            ? likedPosts.has(postId) 
+            : fullPost.post.id === postId && fullPost.post.liked;
+        
+        // Optimistic update
+        setFullPost((prev) => {
+            if (!prev) return prev;
+            const newLikeCount = 
+                typeof prev.post.likeCount === "number"
+                    ? isLiked
+                        ? prev.post.likeCount - 1
+                        : prev.post.likeCount + 1
+                    : isLiked
+                    ? 0
+                    : 1;
+            return {
+                ...prev,
+                post: {
+                    ...prev.post,
+                    liked: !isLiked,
+                    likeCount: newLikeCount,
+                },
+            };
+        });
+
+        try {
+            if (isLiked) {
+                await postService.unlikePost(postId);
+            } else {
+                await postService.likePost(postId);
+            }
+        } catch (e) {
+            // Revert on error
+            handleGetData();
+        }
+    };
 
     if (!fullPost) {
         return (
@@ -162,7 +204,8 @@ export default function PostDetailScreen() {
                             likeCount={fullPost.post.likeCount}
                             commentCount={fullPost.post.commentCount}
                             level={0}
-                            onPressLike={() => {}}
+                            liked={fullPost.post.liked ?? false}
+                            onPressLike={() => handleLike(fullPost.post.id)}
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
                             onPressShare={() => {}}
@@ -181,7 +224,8 @@ export default function PostDetailScreen() {
                         likeCount={0}
                         commentCount={item.subComments?.length || 0}
                         level={item.level + 1}
-                        onPressLike={() => {}}
+                        liked={likedPosts.has(item.commentId)}
+                        onPressLike={() => handleLike(item.commentId)}
                         onPressComment={() => {}}
                     />
                 )}

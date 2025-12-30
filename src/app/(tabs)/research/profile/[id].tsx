@@ -46,7 +46,6 @@ export default function ProfileScreen() {
 
     useEffect(() => {
         handleGetData();
-        console.log(profile)
     }, [id])
 
     if (!profile) {

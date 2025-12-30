@@ -18,6 +18,7 @@ type FlatComment = CommentType & {
 
 export default function ForumPostDetailScreen() {
     const [fullPost, setFullPost] = useState<FullPost | null>(null);
+    const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
     const router = useRouter();
     const params = useLocalSearchParams();
     const { colorScheme } = useThemeContext();
@@ -75,6 +76,46 @@ export default function ForumPostDetailScreen() {
     const flatComments: FlatComment[] = fullPost
         ? flattenComments(fullPost.comments)
         : [];
+
+    const handleLike = async (postId: number, isComment: boolean = false) => {
+        if (!fullPost) return;
+
+        const isLiked = isComment 
+            ? likedPosts.has(postId) 
+            : fullPost.post.id === postId && fullPost.post.liked;
+        
+        // Optimistic update
+        setFullPost((prev) => {
+            if (!prev) return prev;
+            const newLikeCount = 
+                typeof prev.post.likeCount === "number"
+                    ? isLiked
+                        ? prev.post.likeCount - 1
+                        : prev.post.likeCount + 1
+                    : isLiked
+                    ? 0
+                    : 1;
+            return {
+                ...prev,
+                post: {
+                    ...prev.post,
+                    liked: !isLiked,
+                    likeCount: newLikeCount,
+                },
+            };
+        });
+
+        try {
+            if (isLiked) {
+                await postService.unlikePost(postId);
+            } else {
+                await postService.likePost(postId);
+            }
+        } catch (e) {
+            // Revert on error
+            handleGetData();
+        }
+    };
 
     function handleOpenProfile(){
         //FIXME open profile tab if it's the actual connected user
@@ -169,7 +210,8 @@ export default function ForumPostDetailScreen() {
                             likeCount={fullPost.post.likeCount}
                             commentCount={fullPost.post.commentCount}
                             level={0}
-                            onPressLike={() => {}}
+                            liked={fullPost.post.liked ?? false}
+                            onPressLike={() => handleLike(fullPost.post.id)}
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
                             onPressShare={() => {}}
@@ -189,7 +231,8 @@ export default function ForumPostDetailScreen() {
                         likeCount={0}
                         commentCount={item.subComments?.length || 0}
                         level={item.level + 1}
-                        onPressLike={() => {}}
+                        liked={likedPosts.has(item.commentId)}
+                        onPressLike={() => handleLike(item.commentId)}
                         onPressComment={() => {}}
                         onPressUser={handleOpenProfile}
                     />

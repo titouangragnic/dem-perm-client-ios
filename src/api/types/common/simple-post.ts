@@ -17,4 +17,5 @@ export class SimplePost {
     commentCount!: number;
     createdAt!: Date;
     updatedAt!: Date;
+    liked?: boolean;
 }
