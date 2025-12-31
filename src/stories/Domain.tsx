@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
     View,
     Text,
@@ -7,7 +7,6 @@ import {
     StyleProp,
     ViewStyle,
     ImageBackground,
-    Image as RNImage,
 } from 'react-native';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Colors } from '@/constants/theme';
@@ -36,66 +35,37 @@ const DOMAIN_IMAGES = {
     Transport: require('../assets/Domains/Transport.png'),
 } as const;
 
+const DOMAIN_ASPECT_RATIO = 1576 / 495;
+
 export interface DomainProps {
     label: string;
     background: DomainBackground;
     onPress?: () => void;
-
-    /** Optional explicit width (useful in grids). If omitted, parent controls width. */
-    width?: number;
-
-    /** Text color */
     textColor?: string;
-
     style?: StyleProp<ViewStyle>;
 }
 
-/** Domain card */
-export const Domain = ({
-                           label,
-                           background,
-                           onPress,
-                           width,
-                           textColor,
-                           style,
-                       }: DomainProps) => {
+export const Domain = ({ label, background, onPress, textColor, style }: DomainProps) => {
     const { colorScheme } = useThemeContext();
     const defaultTextColor = Colors[colorScheme].text;
-
-    const source = DOMAIN_IMAGES[background];
-
-    const aspectRatio = useMemo(() => {
-        const resolved = RNImage.resolveAssetSource(source);
-        // fallback if something goes wrong
-        if (!resolved?.width || !resolved?.height) return 16 / 9;
-        return resolved.width / resolved.height;
-    }, [source]);
 
     return (
         <TouchableOpacity
             activeOpacity={onPress ? 0.7 : 1}
             onPress={onPress}
             accessibilityRole="button"
-            style={[
-                styles.container,
-                width ? { width } : null,
-                { aspectRatio },
-                style,
-            ]}
+            style={[styles.container, style, { aspectRatio: DOMAIN_ASPECT_RATIO }]}
         >
             <ImageBackground
-                source={source}
+                source={DOMAIN_IMAGES[background]}
                 resizeMode="cover"
-                style={styles.imageBackground}
-                imageStyle={styles.image}
+                style={styles.bg}          // ✅ force fill
+                imageStyle={styles.bgImg}  // ✅ force fill
             >
                 <View style={styles.center}>
                     <Text
                         numberOfLines={2}
-                        style={[
-                            styles.label,
-                            { color: textColor ?? defaultTextColor, fontFamily },
-                        ]}
+                        style={[styles.label, { color: textColor ?? defaultTextColor, fontFamily }]}
                     >
                         {label}
                     </Text>
@@ -107,20 +77,22 @@ export const Domain = ({
 
 const styles = StyleSheet.create({
     container: {
+        width: '100%',          // ✅ responsive width by default
         borderRadius: 16,
         overflow: 'hidden',
     },
-    imageBackground: {
-        flex: 1,
+    bg: {
+        width: '100%',
+        height: '100%',
         justifyContent: 'center',
-        alignItems: 'center',
     },
-    image: {
+    bgImg: {
+        width: '100%',
+        height: '100%',
         borderRadius: 16,
     },
     center: {
         paddingHorizontal: 16,
-        width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
     },
