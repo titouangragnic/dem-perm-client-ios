@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView} from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedView } from '@/components/themed-view';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
-import { Domain } from '@/stories/Domain';
+import { Domain, DomainBackground } from '@/stories/Domain';
 import { domainsService } from '@/api/services/domains.service';
 import { Domain as DomainType } from '@/api/types/forum/domain';
-import { iconVariants } from '@/stories/utils';
 
+const getDomainBackground = (domainName: string): DomainBackground => {
+    const name = domainName.toLowerCase();
 
-// Mapping des domaines vers des icônes
-    const getDomainIcon = (domainName: string): iconVariants => {
-    const lowerName = domainName.toLowerCase();
-    if (lowerName.includes('écologie') || lowerName.includes('environnement')) {
-        return 'megaphone';
-    } else if (lowerName.includes('culture')) {
-        return 'heart';
-    } else if (lowerName.includes('transport')) {
-        return 'paper-plane';
-    } else if (lowerName.includes('santé')) {
-        return 'heart';
-    } else if (lowerName.includes('éducation')) {
-        return 'newspaper';
-    }
-    return 'megaphone'; // Icône par défaut
+    if (name.includes('culture')) return 'Culture';
+    if (name.includes('éducation') || name.includes('education')) return 'Education';
+    if (name.includes('emploi') || name.includes('job') || name.includes('travail')) return 'Emploi';
+    if (name.includes('environnement') || name.includes('écologie') || name.includes('ecologie'))
+        return 'Environnement';
+    if (name.includes('numérique') || name.includes('numerique') || name.includes('digital'))
+        return 'Numerique';
+    if (name.includes('santé') || name.includes('sante')) return 'Sante';
+    if (name.includes('sécurité') || name.includes('securite')) return 'Securite';
+    if (name.includes('transport')) return 'Transport';
+    if (name.includes('sport')) return 'Sport';
+
+    // fallback
+    return 'Numerique';
 };
 
 export default function ForumsDiscoverScreen() {
@@ -33,7 +33,6 @@ export default function ForumsDiscoverScreen() {
     const [domains, setDomains] = useState<DomainType[]>([]);
 
     useEffect(() => {
-        // Charger les domaines au montage du composant
         const fetchDomains = async () => {
             const loadedDomains = await domainsService.getDomains();
             setDomains(loadedDomains);
@@ -42,26 +41,24 @@ export default function ForumsDiscoverScreen() {
     }, []);
 
     const handleDomainPress = (domainId: number) => {
-        // Navigation vers la page des forums du domaine
         router.push({
             pathname: '/(tabs)/forums/themeForums',
-            params: { domainId }
+            params: { domainId },
         });
     };
 
     return (
         <ThemedView style={styles.container}>
-            <ScrollView 
-                style={[styles.scrollView, { backgroundColor: Colors[colorScheme].background }]}
-            >
+            <ScrollView style={[styles.scrollView, { backgroundColor: Colors[colorScheme].background }]}>
                 <ThemedView style={styles.domainsContainer}>
                     {domains.map((domain) => (
                         <Domain
                             key={domain.id}
-                            icon={getDomainIcon(domain.name)}
                             label={domain.name}
+                            background={getDomainBackground(domain.name)}
                             onPress={() => handleDomainPress(domain.id)}
-                            thickness={32}
+                            thickness={44}
+                            textColor="#000000"
                         />
                     ))}
                 </ThemedView>
