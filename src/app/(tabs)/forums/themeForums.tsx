@@ -1,118 +1,58 @@
-import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-} from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { domainsService } from "@/api/services/domains.service";
+import { forumsService } from "@/api/services/forums.service";
+import { subforumsService } from "@/api/services/subforums.service";
+import { SimpleForum } from "@/api/types/forum/simple-forum";
 import { ThemedView } from "@/components/themed-view";
 import { Colors, Spacing, Typography } from "@/constants/theme";
 import { useThemeContext } from "@/contexts/theme-context";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/stories/Button";
-import { InputBar } from "@/stories/InputBar";
 import { Forum } from "@/stories/Forum";
-import { SimpleForum } from "@/api/types/forum/simple-forum";
-import { domainsService } from "@/api/services/domains.service";
+import { InputBar } from "@/stories/InputBar";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 
-// Header inspiré du democracy-header
-type TabKey = "decouvrir" | "mesForums";
-
-interface ForumHeaderProps {
-  activeTab: TabKey;
-  onTabChange: (tab: TabKey) => void;
-}
-
-function ForumHeader({ activeTab, onTabChange }: ForumHeaderProps) {
-  const insets = useSafeAreaInsets();
-  const { colorScheme } = useThemeContext();
-
-  const tabs: { key: TabKey; label: string }[] = [
-    { key: "decouvrir", label: "Découvrir" },
-    { key: "mesForums", label: "Mes Forums" },
-  ];
-
-  return (
-    <View
-      style={[
-        styles.headerContainer,
-        {
-          backgroundColor: Colors[colorScheme].background,
-          paddingTop: insets.top + Spacing.padding,
-        },
-      ]}
-    >
-      <View style={styles.segmentedControlContainer}>
-        <View
-          style={[
-            styles.segmentedControl,
-            { backgroundColor: Colors[colorScheme].primary },
-          ]}
-        >
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.key}
-              style={[
-                styles.tab,
-                activeTab === tab.key && {
-                  backgroundColor: Colors[colorScheme].highlight1,
-                },
-              ]}
-              onPress={() => onTabChange(tab.key)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  { color: Colors[colorScheme].text },
-                  activeTab === tab.key && styles.tabTextActive,
-                ]}
-              >
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </View>
-  );
-}
 
 export default function ThemeForumsScreen() {
   const { colorScheme } = useThemeContext();
   const router = useRouter();
   const params = useLocalSearchParams();
-  const [activeTab, setActiveTab] = useState<TabKey>("decouvrir");
   const [forums, setForums] = useState<SimpleForum[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [domainName, setDomainName] = useState("");
 
-  useEffect(() => {
-    // Récupérer l'ID du domaine depuis les paramètres
-    const domainId = params.domainId as string;
+  useFocusEffect(
+    useCallback(() => {
+      // Récupérer l'ID du domaine depuis les paramètres
+      const domainId = params.domainId as string;
+      const forumId = params.forumId as string;
 
-    async function loadData() {
-      // Charger les forums du domaine
-      const loadedForums = await domainsService.getSubforums(domainId);
-      setForums(loadedForums);
-      const domain = await domainsService.getDomainById(domainId);
-      if (domain) {
-        setDomainName(domain.name);
+      async function loadData() {
+        // Charger les forums du domaine
+        if (domainId) {
+          const loadedForums = await domainsService.getSubforums(domainId);
+          setForums(loadedForums);
+          const domain = await domainsService.getDomainById(domainId);
+          if (domain) {
+            setDomainName(domain.name);
+          }
+        } else if (forumId) {
+          const loadedForum = await forumsService.getSubforums(forumId);
+          setForums(loadedForum);
+          const forum = await subforumsService.getSubforumById(forumId);
+          if (forum) {
+            setDomainName(forum.title);
+          }
+        }
       }
-    }
-    loadData();
-  }, [params.domainId]);
-
-  const handleTabChange = (tab: TabKey) => {
-    setActiveTab(tab);
-    if (tab === "decouvrir") {
-      router.push("/(tabs)/forums/forumsDiscover");
-    } else if (tab === "mesForums") {
-      router.push("/(tabs)/forums/myForums");
-    }
-  };
+      loadData();
+    }, [params.domainId, params.forumId])
+  );
 
   const handleForumPress = (forumId: string) => {
     // Navigation vers la page du forum
@@ -128,6 +68,19 @@ export default function ThemeForumsScreen() {
     console.log("Recherche:", searchQuery);
   };
 
+  const handleCreateForum = () => {
+    let _params = {};
+    if (params.domainId) {
+      _params = { domainId: params.domainId };
+    } else if (params.forumId) {
+      _params = { forumId: params.forumId };
+    }
+    router.push({
+      pathname: "/(tabs)/forums/createForum",
+      params: _params,
+    });
+  };
+
   // Filtrer les forums selon la recherche
   const filteredForums = forums.filter(
     (forum) =>
@@ -137,7 +90,6 @@ export default function ThemeForumsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ForumHeader activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Barre de navigation et recherche */}
       <View
@@ -163,6 +115,15 @@ export default function ThemeForumsScreen() {
             value={searchQuery}
           />
         </View>
+      </View>
+
+      {/* Bouton Créer un forum */}
+      <View style={styles.createButtonContainer}>
+        <Button
+          label="Créer un forum"
+          onPress={handleCreateForum}
+          size="large"
+        />
       </View>
 
       <ScrollView
@@ -241,5 +202,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: Typography.sizes.general,
     marginTop: Spacing.margin * 2,
+  },
+  createButtonContainer: {
+    marginVertical: Spacing.margin,
+    marginHorizontal: Spacing.margin,
   },
 });

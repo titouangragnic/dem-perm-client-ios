@@ -79,8 +79,8 @@ export default function ResearchScreen() {
                             {filteredUsers.map((profile) => (
                                 <View key={profile.user.id} style={styles.userCardWrapper as ViewStyle}>
                                     <ProfileCard
-                                        avatarUri={profile.user.profilePictureUrl}
-                                        bannerUri={profile.user.bannerUrl}
+                                        avatarUri={`https://picsum.photos/seed/${profile.user.id}/96`}
+                                        bannerUri={`https://picsum.photos/seed/${profile.user.id}banner/720`}
                                         description={profile.bio}
                                         onPressFollow={() => {}}
                                         username={profile.user.displayName}
@@ -150,7 +150,7 @@ export default function ResearchScreen() {
                                             onPressUser={() => handleOpenProfile(post.author.id)}
                                             text={post.content || ''}
                                             username={post.author.displayName}
-                                            avatarUri={post.author.profilePictureUrl}
+                                            avatarUri={`https://picsum.photos/seed/${post.author.id}/96`}
                                         />
                                     </View>
                                 );

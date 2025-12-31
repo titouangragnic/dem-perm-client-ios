@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, ScrollView, View, Text } from "react-native";
-import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CreateForumDto } from "@/api/dtos/forum.dto";
+import { domainsService } from "@/api/services/domains.service";
+import { Domain } from "@/api/types/forum/domain";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Button } from "@/stories/Button";
-import { InputBar } from "@/stories/InputBar";
-import { Dropdown, DropdownOption } from "@/stories/Dropdown";
 import { Colors, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { Domain } from "@/api/types/forum/domain";
-import { domainsService } from "@/api/services/domains.service";
-import { CreateForumDto } from "@/api/dtos/forum.dto";
+import { Button } from "@/stories/Button";
+import { Dropdown, DropdownOption } from "@/stories/Dropdown";
+import { InputBar } from "@/stories/InputBar";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function CreateForumScreen() {
   const router = useRouter();
   const { colorScheme } = useTheme();
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams();
 
   const [domains, setDomains] = useState<Domain[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<string>("");
   const [forumName, setForumName] = useState("");
   const [forumDescription, setForumDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
 
   useEffect(() => {
     // Charger les domaines au montage du composant
@@ -30,29 +33,32 @@ export default function CreateForumScreen() {
       console.log("Domaines chargés:", loadedDomains);
       setDomains(loadedDomains);
     };
-    fetchDomains();
-  }, []);
+
+    if (params.domainId) {
+      setSelectedDomain(params.domainId as string);
+    } else {
+      fetchDomains();
+    }
+  }, [params.domainId]);
 
   const handleCreateForum = () => {
-    // TODO: Intégration API pour créer le forum
-    console.log("Créer le forum:", {
-      domain: selectedDomain,
-      name: forumName,
-      description: forumDescription,
-    });
+    if (isLoading) return; 
+    setIsLoading(true);
+    if (params.domainId) {
+      const dto: CreateForumDto = {
+        name: forumName,
+        description: forumDescription,
+      };
 
-    //if parent est un domain
-
-    const dto: CreateForumDto = {
-      name: forumName,
-      description: forumDescription,
-    };
-
-    domainsService.createSubforum(selectedDomain, dto).then(() => {
-      // Après la création, retourner à la page mes forums
-      router.back();
-    });
-
+      domainsService.createSubforum(selectedDomain, dto).then(() => {
+        // Après la création, retourner à la page mes forums
+        router.back();
+      });
+    }
+    else {
+      // TODO
+    }
+    setIsLoading(false);
     // const formdata :CreateForumDto = {
     //     name: forumName,
     //     description: forumDescription
@@ -105,15 +111,19 @@ export default function CreateForumScreen() {
         contentContainerStyle={styles.contentContainer}
       >
         {/* Sélectionner un domaine */}
-        <View style={styles.fieldContainer}>
-          <ThemedText style={styles.label}>Sélectionner un domaine</ThemedText>
-          <Dropdown
-            options={domainOptions}
-            value={selectedDomain}
-            onChange={setSelectedDomain}
-            placeholder="Choisir un domaine"
-          />
-        </View>
+        {!params.domainId && (
+          <View style={styles.fieldContainer}>
+            <ThemedText style={styles.label}>
+              Sélectionner un domaine
+            </ThemedText>
+            <Dropdown
+              options={domainOptions}
+              value={selectedDomain}
+              onChange={setSelectedDomain}
+              placeholder="Choisir un domaine"
+            />
+          </View>
+        )}
 
         {/* Nom du forum */}
         <View style={styles.fieldContainer}>

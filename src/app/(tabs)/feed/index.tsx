@@ -105,7 +105,7 @@ export default function FeedScreen() {
             <Post
               title={item.title || ""}
               username={item.author.displayName}
-              avatarUri={item.author.profilePictureUrl}
+              avatarUri={`https://picsum.photos/seed/${item.author.id}/96`}
               date={formatDate(item.createdAt)}
               text={item.content}
               images={item.medias ? item.medias.map((m) => m.mediaUrl) : []}
