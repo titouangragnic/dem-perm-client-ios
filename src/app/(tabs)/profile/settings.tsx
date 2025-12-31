@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {Platform, ScrollView, StyleSheet, View} from 'react-native';
 import {Colors, Spacing} from "@/constants/theme";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {ThemedText} from "@/components/themed-text";
@@ -13,8 +13,14 @@ import {getSettings} from "@/api/mock/functions";
 import {useUser} from "@/contexts/user-context";
 import {getInStoreUsageOfRealData} from "@/api/utils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 async function saveInStoreUsageOfRealData( value: string) {
-    await AsyncStorage.setItem("usingRealData" , value);
+    if(Platform.OS === "ios" || Platform.OS === "android") {
+        await SecureStore.setItemAsync("usingRealData", value);
+    }
+    else{
+        await AsyncStorage.setItem("usingRealData" , value);
+    }
 }
 
 export default function SettingsScreen() {
