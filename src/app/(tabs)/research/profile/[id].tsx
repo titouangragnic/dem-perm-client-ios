@@ -41,7 +41,7 @@ export default function ProfileScreen() {
     }
 
     const handleNewPostPress = () => {
-        router.navigate("/profile/create-post");
+        router.navigate("/research/create-post");
     }
 
     useEffect(() => {

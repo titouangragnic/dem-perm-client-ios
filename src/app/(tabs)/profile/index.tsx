@@ -105,12 +105,12 @@ export default function ProfileScreen() {
 
       <ThemedView style={styles.container}>
         <ScrollView>
-          {/* <Button
-                        icon="add"
-                        label="Nouveau post"
-                        onPress={handleNewPostPress}
-                        style={styles.createPostButton}
-                    /> */}
+         <Button
+             icon="add"
+             label="Nouveau post"
+             onPress={handleNewPostPress}
+             style={styles.createPostButton}
+         />
           {/* <ThemedText style={styles.infoText}>
                         Localisation: {profile.location || 'Non renseignée'}
                     </ThemedText>

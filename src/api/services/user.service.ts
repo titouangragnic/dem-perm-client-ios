@@ -139,6 +139,14 @@ export const userService = {
    * Uniquement mocké
    */
   async getDiscoverUsers(): Promise<Profile[]> {
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve([]);
+        }, 300);
+      });
+    }
     const users = discoverUsers();
     return new Promise((resolve, reject) => {
       setTimeout(() => {

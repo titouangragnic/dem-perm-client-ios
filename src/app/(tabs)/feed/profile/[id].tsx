@@ -42,7 +42,7 @@ export default function ProfileScreen() {
     }
 
     const handleNewPostPress = () => {
-        router.navigate("/profile/create-post");
+        router.navigate("/feed/create-post");
     }
 
     useEffect(() => {
