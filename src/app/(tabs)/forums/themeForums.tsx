@@ -14,79 +14,14 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// Header inspiré du democracy-header
-type TabKey = "decouvrir" | "mesForums";
-
-interface ForumHeaderProps {
-  activeTab: TabKey;
-  onTabChange: (tab: TabKey) => void;
-}
-
-function ForumHeader({ activeTab, onTabChange }: ForumHeaderProps) {
-  const insets = useSafeAreaInsets();
-  const { colorScheme } = useThemeContext();
-
-  const tabs: { key: TabKey; label: string }[] = [
-    { key: "decouvrir", label: "Découvrir" },
-    { key: "mesForums", label: "Mes Forums" },
-  ];
-
-  return (
-    <View
-      style={[
-        styles.headerContainer,
-        {
-          backgroundColor: Colors[colorScheme].background,
-          paddingTop: insets.top + Spacing.padding,
-        },
-      ]}
-    >
-      <View style={styles.segmentedControlContainer}>
-        <View
-          style={[
-            styles.segmentedControl,
-            { backgroundColor: Colors[colorScheme].primary },
-          ]}
-        >
-          {tabs.map((tab) => (
-            <TouchableOpacity
-              key={tab.key}
-              style={[
-                styles.tab,
-                activeTab === tab.key && {
-                  backgroundColor: Colors[colorScheme].highlight1,
-                },
-              ]}
-              onPress={() => onTabChange(tab.key)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  { color: Colors[colorScheme].text },
-                  activeTab === tab.key && styles.tabTextActive,
-                ]}
-              >
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </View>
-  );
-}
 
 export default function ThemeForumsScreen() {
   const { colorScheme } = useThemeContext();
   const router = useRouter();
   const params = useLocalSearchParams();
-  const [activeTab, setActiveTab] = useState<TabKey>("decouvrir");
   const [forums, setForums] = useState<SimpleForum[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [domainName, setDomainName] = useState("");
@@ -118,15 +53,6 @@ export default function ThemeForumsScreen() {
       loadData();
     }, [params.domainId, params.forumId])
   );
-
-  const handleTabChange = (tab: TabKey) => {
-    setActiveTab(tab);
-    if (tab === "decouvrir") {
-      router.push("/(tabs)/forums/forumsDiscover");
-    } else if (tab === "mesForums") {
-      router.push("/(tabs)/forums/myForums");
-    }
-  };
 
   const handleForumPress = (forumId: string) => {
     // Navigation vers la page du forum
@@ -164,7 +90,6 @@ export default function ThemeForumsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ForumHeader activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Barre de navigation et recherche */}
       <View
