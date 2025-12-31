@@ -20,7 +20,7 @@ export const getPost = function (id: string) {
 }
 
 export const getCommentsReplies = function(commentId: string) {
-    return db.commentsByPostId.filter(comment => comment.comment_id === commentId);
+    return db.commentsByPostId.filter(comment => comment.parent_comment_id === commentId);
 }
 
 export const getForYouPage = function () {
