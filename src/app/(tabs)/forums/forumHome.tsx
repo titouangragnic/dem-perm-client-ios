@@ -62,7 +62,7 @@ export default function ForumHomeScreen() {
 
   const handleCreatePost = () => {
     router.push({
-      pathname: "/profile/create-post",
+      pathname: "/forums/create-post",
       params: {
         forumData: JSON.stringify(forum),
       },
