@@ -36,6 +36,13 @@ export default function FeedScreen() {
     fetchPosts();
   }, []);
 
+  function handleOpenProfile(userId: string){
+
+    //FIXME open profile tab if it's the actual connected user
+    router.push({pathname: `/(tabs)/feed/profile/[id]`,
+      params: { id: userId }});/* FIXME with userID*/
+  }
+
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("fr-FR", {
       day: "numeric",
@@ -117,6 +124,7 @@ export default function FeedScreen() {
               onPressComment={() => {}}
               onPressRepost={() => {}}
               onPressShare={() => {}}
+              onPressUser={() => handleOpenProfile(item.author.id)}
               onPress={() =>
                 router.push(`/(tabs)/feed/postDetail?id=${item.id}`)
               }

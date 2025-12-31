@@ -5,9 +5,10 @@ import {router, useLocalSearchParams, useRouter} from 'expo-router';
 import { ThemedView } from '@/components/themed-view';
 import {ProfileHeader} from "@/stories/ProfileHeader";
 import {Profile} from "@/api/types/profile/profile";
-import {getMyProfile} from "@/api/mock/functions";
+import {getMyProfile, getProfile} from "@/api/mock/functions";
 import {Post} from "@/stories/Post";
 import {Button} from "@/stories/Button";
+import {userService} from "@/api/services/user.service";
 
 export default function ProfileScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -16,7 +17,7 @@ export default function ProfileScreen() {
     const [profile, setProfile] = React.useState<Profile>();
     const [refreshing, setRefreshing] = useState(false);
 
-    const handleGetData = () => {
+    const handleGetData = async () => {
         const profile : Profile|undefined = getMyProfile();
         if (profile)
             setProfile(profile);
