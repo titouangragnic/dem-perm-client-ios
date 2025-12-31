@@ -53,6 +53,10 @@ export const searchInForums = function (query: string) {
     return db.forums.filter(forum => forum.description.includes(query) || forum.title.includes(query));
 }
 
+export const discoverUsers = function () {
+    return db.profiles;
+}
+
 export const getForum = function (id: number) {
     return db.fullForums.find(forum => forum.forum.id == id);
 }

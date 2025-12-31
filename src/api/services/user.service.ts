@@ -2,7 +2,7 @@ import { socialApiClient } from '../client';
 import { SimpleUser } from '../types/common/simple-user';
 import { Profile } from '../types/profile/profile';
 import {getInStoreUsageOfRealData} from "@/api/utils";
-import {getMyProfile, getProfile} from "@/api/mock/functions";
+import {discoverUsers, getMyProfile, getProfile, searchInUsers} from "@/api/mock/functions";
 
 export interface CreateUserDto {
   username: string;
@@ -132,5 +132,18 @@ export const userService = {
       console.error('Erreur lors de la mise à jour du profil:', error.response?.data || error.message);
       throw error;
     }
+  },
+
+  /**
+   * Recherche des users
+   * Uniquement mocké
+   */
+  async getDiscoverUsers(): Promise<Profile[]> {
+    const users = discoverUsers();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(users);
+      }, 300);
+    });
   },
 };
