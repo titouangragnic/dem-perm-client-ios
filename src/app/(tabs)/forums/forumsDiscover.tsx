@@ -57,7 +57,6 @@ export default function ForumsDiscoverScreen() {
                             label={domain.name}
                             background={getDomainBackground(domain.name)}
                             onPress={() => handleDomainPress(domain.id)}
-                            thickness={44}
                             textColor="#000000"
                         />
                     ))}

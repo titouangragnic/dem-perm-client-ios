@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
     View,
     Text,
@@ -6,8 +6,7 @@ import {
     StyleSheet,
     StyleProp,
     ViewStyle,
-    ImageBackground,
-    ImageSourcePropType,
+    Image,
 } from 'react-native';
 import { useThemeContext } from '@/contexts/theme-context';
 import { Colors } from '@/constants/theme';
@@ -24,8 +23,8 @@ export type DomainBackground =
     | 'Sport'
     | 'Transport';
 
-/** Background images mapping */
-const DOMAIN_IMAGES: Record<DomainBackground, ImageSourcePropType> = {
+// ⚠️ Keep these paths RELATIVE (Metro often won't resolve @/ in require())
+const DOMAIN_IMAGES = {
     Culture: require('../assets/Domains/Culture.png'),
     Education: require('../assets/Domains/Education.png'),
     Emploi: require('../assets/Domains/Emploi.png'),
@@ -35,63 +34,79 @@ const DOMAIN_IMAGES: Record<DomainBackground, ImageSourcePropType> = {
     Securite: require('../assets/Domains/Securite.png'),
     Sport: require('../assets/Domains/Sport.png'),
     Transport: require('../assets/Domains/Transport.png'),
-};
+} as const;
 
 export interface DomainProps {
-    /** Titre à afficher */
     label: string;
-    /** Image de fond */
     background: DomainBackground;
-    /** Action au clic */
     onPress?: () => void;
-    /** Hauteur verticale */
-    thickness?: number;
-    /** Couleur du texte */
+    /** Fixed height of the button (drives image scaling) */
+    height?: number;
+    /** Text color */
     textColor?: string;
-    /** Style personnalisé */
     style?: StyleProp<ViewStyle>;
 }
 
-/** Carte Domain — image de fond + texte centré */
 export const Domain = ({
                            label,
                            background,
                            onPress,
-                           thickness = 32,
+                           height = 120,
                            textColor,
                            style,
                        }: DomainProps) => {
     const { colorScheme } = useThemeContext();
     const defaultTextColor = Colors[colorScheme].text;
+    const fallbackBg = Colors[colorScheme].primary;
+
+    const source = DOMAIN_IMAGES[background];
+
+    const { imageWidth, marginLeft } = useMemo(() => {
+        const resolved = Image.resolveAssetSource(source);
+        const ratio =
+            resolved?.width && resolved?.height ? resolved.width / resolved.height : 1;
+
+        // Scale image by HEIGHT: width = height * ratio
+        const w = Math.round(height * ratio);
+
+        // Center horizontally: left 50% + negative half width
+        return { imageWidth: w, marginLeft: -w / 2 };
+    }, [source, height]);
 
     return (
         <TouchableOpacity
             activeOpacity={onPress ? 0.7 : 1}
             onPress={onPress}
             accessibilityRole="button"
-            style={[styles.container, style]}
+            style={[styles.container, { height, backgroundColor: fallbackBg }, style]}
         >
-            <ImageBackground
-                source={DOMAIN_IMAGES[background]}
-                resizeMode="cover"
-                style={[styles.imageBackground, { paddingVertical: thickness }]}
-                imageStyle={styles.image}
-            >
-                <View style={styles.overlay}>
-                    <Text
-                        numberOfLines={2}
-                        style={[
-                            styles.label,
-                            {
-                                color: textColor ?? defaultTextColor,
-                                fontFamily,
-                            },
-                        ]}
-                    >
-                        {label}
-                    </Text>
-                </View>
-            </ImageBackground>
+            {/* Background image scaled by height — top/bottom always visible */}
+            <Image
+                source={source}
+                style={[
+                    styles.bgImage,
+                    {
+                        height,
+                        width: imageWidth,
+                        marginLeft,
+                    },
+                ]}
+                // We already preserve aspect ratio via width/height, so this is safe
+                resizeMode="stretch"
+            />
+
+            {/* Centered label */}
+            <View style={styles.content}>
+                <Text
+                    numberOfLines={2}
+                    style={[
+                        styles.label,
+                        { color: textColor ?? defaultTextColor, fontFamily },
+                    ]}
+                >
+                    {label}
+                </Text>
+            </View>
         </TouchableOpacity>
     );
 };
@@ -99,24 +114,21 @@ export const Domain = ({
 const styles = StyleSheet.create({
     container: {
         borderRadius: 16,
-        overflow: 'hidden',
-    },
-    imageBackground: {
-        paddingHorizontal: 16,
+        overflow: 'hidden', // crops only sides when image is wider
         justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 80,
     },
-    image: {
-        borderRadius: 16,
+    bgImage: {
+        position: 'absolute',
+        left: '50%',
+        top: 0,
     },
-    overlay: {
-        width: '100%',
+    content: {
+        paddingHorizontal: 16,
         alignItems: 'center',
         justifyContent: 'center',
     },
     label: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: '700',
         textAlign: 'center',
     },
