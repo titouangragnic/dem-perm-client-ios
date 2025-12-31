@@ -6,7 +6,7 @@ import { Colors, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "@/stories/Button";
 import { Chip } from "@/stories/Chip";
-import { Domain } from "@/stories/Domain";
+import { DomainPrev } from "@/stories/DomainPrev";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -190,7 +190,7 @@ export default function ForumHomeScreen() {
 
           {posts && posts.length > 0 ? (
             posts.map((post) => (
-              <Domain
+              <DomainPrev
                 key={post.id}
                 icon="chatbubbles"
                 label={post.title}
