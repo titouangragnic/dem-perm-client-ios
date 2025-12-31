@@ -4,7 +4,8 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  Platform,
+  Platform, Alert,
+  Image
 } from 'react-native';
 import {useRouter, useLocalSearchParams, router} from 'expo-router'; // Added useLocalSearchParams
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +19,8 @@ import { InputBar } from '@/stories/InputBar';
 import { Button } from '@/stories/Button';
 import { postService } from "@/api/services/post.service";
 import { SimpleForum } from "@/api/types/forum/simple-forum"; // Ensure this path is correct
+import * as ImagePicker from 'expo-image-picker';
+
 
 // Helper pour les alertes cross-platform
 const showAlert = (title: string, message: string, onOk?: () => void) => {
@@ -41,6 +44,7 @@ export default function CreatePostScreen() {
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [newMediaUrl, setNewMediaUrl] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
 
   // Parse the forum object safely
   const targetForum: SimpleForum | null = useMemo(() => {
@@ -53,18 +57,45 @@ export default function CreatePostScreen() {
     }
   }, [forumData]);
 
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library.
+    // Manually request permissions for videos on iOS when `allowsEditing` is set to `false`
+    // and `videoExportPreset` is `'Passthrough'` (the default), ideally before launching the picker
+    // so the app users aren't surprised by a system dialog after picking a video.
+    // See "Invoke permissions for videos" sub section for more details.
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission required', 'Permission to access the media library is required.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImages([...images, result.assets[0].uri]);
+    }
+  };
+
   const handleAddMedia = () => {
     if (!newMediaUrl.trim()) {
       showAlert('Erreur', 'Veuillez entrer une URL de média');
       return;
     }
-    
+
     // Basic URL validation
     if (!newMediaUrl.startsWith('http://') && !newMediaUrl.startsWith('https://')) {
       showAlert('Erreur', 'L\'URL doit commencer par http:// ou https://');
       return;
     }
-    
+
     setMediaUrls([...mediaUrls, newMediaUrl.trim()]);
     setNewMediaUrl('');
   };
@@ -78,7 +109,7 @@ export default function CreatePostScreen() {
     console.log('title:', title);
     console.log('content:', content);
     console.log('targetForum:', targetForum);
-    
+
     if (!title.trim()) {
       showAlert('Erreur', 'Veuillez entrer un titre');
       return;
@@ -118,140 +149,152 @@ export default function CreatePostScreen() {
   };
 
   return (
-    <ThemedView
-      style={[
-        styles.container,
-        {
-          backgroundColor:
-            colorScheme === 'light'
-              ? Colors.light.background
-              : Colors.dark.background,
-        },
-      ]}
-    >
-      {/* Header */}
-      <View
-        style={[
-          styles.header,
-          {
-            paddingTop: insets.top + Spacing.padding,
-            backgroundColor:
-              colorScheme === 'light'
-                ? Colors.light.background
-                : Colors.dark.background,
-          },
-        ]}
+      <ThemedView
+          style={[
+            styles.container,
+            {
+              backgroundColor:
+                  colorScheme === 'light'
+                      ? Colors.light.background
+                      : Colors.dark.background,
+            },
+          ]}
       >
-        <Button
-            backgroundColor="background"
-            icon="chevron-back"
-            label=""
-            onPress={() => {router.back()}}
-            size="large"
-        />
-
-        <View style={styles.headerTitleContainer}>
-          <ThemedText style={styles.headerTitle}>
-            Créer un poste
-          </ThemedText>
-          {/* Optional: Show which forum we are posting to */}
-          {targetForum && (
-            <ThemedText style={styles.subHeaderTitle} darkColor={colors.highlight1} lightColor={colors.highlight1}>
-              dans {targetForum.title}
-            </ThemedText>
-          )}
-        </View>
-
-        <View style={styles.rightButton} />
-      </View>
-
-      <ScrollView 
-        style={styles.flex}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.content}>
-          <ThemedText style={styles.label}>
-            Titre du poste
-          </ThemedText>
-
-          <InputBar
-            placeholder="Titre ..."
-            value={title}
-            onChangeText={setTitle}
-            backgroundColor="background"
-            hideRightIcon
-            bigInput={false}
-            style={styles.titleInput}
-          />
-
-          {/* Post label */}
-          <ThemedText style={styles.label}>Poste</ThemedText>
-
-          {/* Content input (big) */}
-          <InputBar
-            placeholder="Contenu ..."
-            value={content}
-            onChangeText={setContent}
-            bigInput
-            hideRightIcon
-            style={styles.contentInput}
-          />
-
-          {/* Media URL Section */}
-          <ThemedText style={styles.label}>Médias (URLs)</ThemedText>
-          
-          <View style={styles.mediaInputRow}>
-            <InputBar
-              placeholder="https://exemple.com/image.jpg"
-              value={newMediaUrl}
-              onChangeText={setNewMediaUrl}
+        {/* Header */}
+        <View
+            style={[
+              styles.header,
+              {
+                paddingTop: insets.top + Spacing.padding,
+                backgroundColor:
+                    colorScheme === 'light'
+                        ? Colors.light.background
+                        : Colors.dark.background,
+              },
+            ]}
+        >
+          <Button
               backgroundColor="background"
-              hideRightIcon
-              style={styles.mediaInput}
-            />
-            <Button
-              icon="add"
-              size="large"
-              backgroundColor="primary"
+              icon="chevron-back"
               label=""
-              onPress={handleAddMedia}
-              style={styles.addMediaButton}
-            />
+              onPress={() => {router.back()}}
+              size="large"
+          />
+
+          <View style={styles.headerTitleContainer}>
+            <ThemedText style={styles.headerTitle}>
+              Créer un poste
+            </ThemedText>
+            {/* Optional: Show which forum we are posting to */}
+            {targetForum && (
+                <ThemedText style={styles.subHeaderTitle} darkColor={colors.highlight1} lightColor={colors.highlight1}>
+                  dans {targetForum.title}
+                </ThemedText>
+            )}
           </View>
 
-          {/* Liste des médias ajoutés */}
-          {mediaUrls.length > 0 && (
-            <View style={styles.mediaList}>
-              {mediaUrls.map((url, index) => (
-                <View key={index} style={[styles.mediaItem, { backgroundColor: Colors[colorScheme].primary }]}>
-                  <ThemedText style={styles.mediaUrl} numberOfLines={1}>
-                    {url}
-                  </ThemedText>
-                  <TouchableOpacity onPress={() => handleRemoveMedia(index)}>
-                    <IconSymbol
-                      name="xmark.circle.fill"
-                      size={20}
-                      color={Colors[colorScheme].highlight2}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          )}
+          <View style={styles.rightButton} />
         </View>
 
-        <ThemedView style={styles.footer}>
-          <Button
-            size="large"
-            backgroundColor="highlight1"
-            label={isPublishing ? "Publication..." : "Poster"}
-            onPress={handlePublish}
-            style={styles.publishButton}
-          />
-        </ThemedView>
-      </ScrollView>
-    </ThemedView>
+        <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
+            <ThemedText style={styles.label}>
+              Titre du poste
+            </ThemedText>
+
+            <InputBar
+                placeholder="Titre ..."
+                value={title}
+                onChangeText={setTitle}
+                backgroundColor="background"
+                hideRightIcon
+                bigInput={false}
+                style={styles.titleInput}
+            />
+
+            {/* Post label */}
+            <ThemedText style={styles.label}>Poste</ThemedText>
+
+            {/* Content input (big) */}
+            <InputBar
+                placeholder="Contenu ..."
+                value={content}
+                onChangeText={setContent}
+                bigInput
+                hideRightIcon
+                style={styles.contentInput}
+            />
+
+            {/* Media URL Section */}
+            <ThemedText style={styles.label}>Médias (URLs)</ThemedText>
+
+            <View style={styles.mediaInputRow}>
+              <InputBar
+                  placeholder="https://exemple.com/image.jpg"
+                  value={newMediaUrl}
+                  onChangeText={setNewMediaUrl}
+                  backgroundColor="background"
+                  hideRightIcon
+                  style={styles.mediaInput}
+              />
+              <Button
+                  icon="add"
+                  size="large"
+                  backgroundColor="primary"
+                  label=""
+                  onPress={handleAddMedia}
+                  style={styles.addMediaButton}
+              />
+            </View>
+            <Button label="Importer une image de mon appareil" onPress={pickImage} />
+
+            {/* Liste des médias ajoutés */}
+            {mediaUrls.length > 0 && (
+                <View style={styles.mediaList}>
+                  {mediaUrls.map((url, index) => (
+                      <View key={index} style={[styles.mediaItem, { backgroundColor: Colors[colorScheme].primary }]}>
+                        <ThemedText style={styles.mediaUrl} numberOfLines={1}>
+                          {url}
+                        </ThemedText>
+                        <TouchableOpacity onPress={() => handleRemoveMedia(index)}>
+                          <IconSymbol
+                              name="xmark.circle.fill"
+                              size={20}
+                              color={Colors[colorScheme].highlight2}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                  ))}
+                </View>
+            )}
+            {images.length > 0 && (
+                <View style={styles.pictureView}>
+                  {images.map((url, index) => (
+                      <Image
+                          key={index}
+                          source={{ uri: url }}
+                          style={styles.picture}
+                      />
+                  ))}
+                </View>
+            )}
+          </View>
+
+          <ThemedView style={styles.footer}>
+            <Button
+                size="large"
+                backgroundColor="highlight1"
+                label={isPublishing ? "Publication..." : "Poster"}
+                onPress={handlePublish}
+                style={styles.publishButton}
+            />
+          </ThemedView>
+        </ScrollView>
+      </ThemedView>
   );
 }
 
@@ -348,4 +391,12 @@ const styles = StyleSheet.create({
   publishButton: {
     alignSelf: 'stretch',
   },
+  picture:{
+    width: 100, height: 100, borderRadius: 8
+  },
+  pictureView:{
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10
+  }
 });
