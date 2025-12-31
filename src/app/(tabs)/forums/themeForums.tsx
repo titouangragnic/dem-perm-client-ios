@@ -1,4 +1,6 @@
 import { domainsService } from "@/api/services/domains.service";
+import { forumsService } from "@/api/services/forums.service";
+import { subforumsService } from "@/api/services/subforums.service";
 import { SimpleForum } from "@/api/types/forum/simple-forum";
 import { ThemedView } from "@/components/themed-view";
 import { Colors, Spacing, Typography } from "@/constants/theme";
@@ -89,21 +91,33 @@ export default function ThemeForumsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [domainName, setDomainName] = useState("");
 
-  useFocusEffect(useCallback(() => {
-    // Récupérer l'ID du domaine depuis les paramètres
-    const domainId = params.domainId as string;
+  useFocusEffect(
+    useCallback(() => {
+      // Récupérer l'ID du domaine depuis les paramètres
+      const domainId = params.domainId as string;
+      const forumId = params.forumId as string;
 
-    async function loadData() {
-      // Charger les forums du domaine
-      const loadedForums = await domainsService.getSubforums(domainId);
-      setForums(loadedForums);
-      const domain = await domainsService.getDomainById(domainId);
-      if (domain) {
-        setDomainName(domain.name);
+      async function loadData() {
+        // Charger les forums du domaine
+        if (domainId) {
+          const loadedForums = await domainsService.getSubforums(domainId);
+          setForums(loadedForums);
+          const domain = await domainsService.getDomainById(domainId);
+          if (domain) {
+            setDomainName(domain.name);
+          }
+        } else if (forumId) {
+          const loadedForum = await forumsService.getSubforums(forumId);
+          setForums(loadedForum);
+          const forum = await subforumsService.getSubforumById(forumId);
+          if (forum) {
+            setDomainName(forum.title);
+          }
+        }
       }
-    }
-    loadData();
-  }, [params.domainId]));
+      loadData();
+    }, [params.domainId, params.forumId])
+  );
 
   const handleTabChange = (tab: TabKey) => {
     setActiveTab(tab);
@@ -128,12 +142,18 @@ export default function ThemeForumsScreen() {
     console.log("Recherche:", searchQuery);
   };
 
-    const handleCreateForum = () => {
-        router.push({
-          pathname: '/(tabs)/forums/createForum',
-          params: { domainId: params.domainId },
-        });
-    };
+  const handleCreateForum = () => {
+    let _params = {};
+    if (params.domainId) {
+      _params = { domainId: params.domainId };
+    } else if (params.forumId) {
+      _params = { forumId: params.forumId };
+    }
+    router.push({
+      pathname: "/(tabs)/forums/createForum",
+      params: _params,
+    });
+  };
 
   // Filtrer les forums selon la recherche
   const filteredForums = forums.filter(

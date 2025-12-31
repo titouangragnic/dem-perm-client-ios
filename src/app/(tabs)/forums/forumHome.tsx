@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  RefreshControl,
-} from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { subforumsService } from "@/api/services/subforums.service";
+import { FullForum } from "@/api/types/forum/full-forum";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Button } from "@/stories/Button";
-import { Domain } from "@/stories/Domain";
-import { Chip } from "@/stories/Chip";
 import { Colors, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { FullForum } from "@/api/types/forum/full-forum";
-import { subforumsService } from "@/api/services/subforums.service";
+import { Button } from "@/stories/Button";
+import { Chip } from "@/stories/Chip";
+import { Domain } from "@/stories/Domain";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ForumHomeScreen() {
   const router = useRouter();
@@ -162,6 +162,18 @@ export default function ForumHomeScreen() {
             {forum.memberCount} membres
           </ThemedText>
         </View>
+        {/* Bouton Voir les sous-forums */}
+        {/* 
+        <View style={styles.createPostContainer}>
+          <Button
+            label="Voir les sous-forums"
+            onPress={() => router.push({
+              pathname: "/(tabs)/forums/themeForums",
+              params: { forumId: forum.id },
+            })}
+            size="large"
+          />
+        </View> */}
 
         {/* Bouton Nouveau post */}
         <View style={styles.createPostContainer}>
