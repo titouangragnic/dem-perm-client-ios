@@ -1,14 +1,14 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {StyleSheet, ScrollView, View, Text, TouchableOpacity, RefreshControl} from 'react-native';
-import { useRouter } from 'expo-router';
+import { forumsService } from '@/api/services/forums.service';
+import { SimpleForum } from '@/api/types/forum/simple-forum';
 import { ThemedView } from '@/components/themed-view';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useThemeContext } from '@/contexts/theme-context';
-import { InputBar } from '@/stories/InputBar';
 import { Button } from '@/stories/Button';
 import { Forum } from '@/stories/Forum';
-import {getFeed, getMyForums} from '@/api/mock/functions';
-import { SimpleForum } from '@/api/types/forum/simple-forum';
+import { InputBar } from '@/stories/InputBar';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function MyForumsScreen() {
     const { colorScheme } = useThemeContext();
@@ -17,9 +17,9 @@ export default function MyForumsScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
 
-    const handleGetData = () => {
+    const handleGetData = async () => {
         // Charger les forums au montage du composant
-        const loadedForums = getMyForums();
+        const loadedForums = await forumsService.getMyForums();
         setForums(loadedForums);
     };
 
@@ -33,7 +33,7 @@ export default function MyForumsScreen() {
         handleGetData();
     }, []);
 
-    const handleForumPress = (forumId: number) => {
+    const handleForumPress = (forumId: string) => {
         // Navigation vers la page du forum
         router.push({
             pathname: '/(tabs)/forums/forumHome',
