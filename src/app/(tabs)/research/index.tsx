@@ -11,6 +11,7 @@ import { useThemeContext } from '@/contexts/theme-context';
 import {SafeAreaView} from "react-native-safe-area-context";
 import { ForYouResults } from '@/api/types/for-you-page/for-you-results';
 import { postService } from '@/api/services/post.service';
+import {userService} from "@/api/services/user.service";
 
 export default function ResearchScreen() {
     const [searchText, setSearchText] = useState('');
@@ -24,7 +25,7 @@ export default function ResearchScreen() {
     React.useEffect(() => {
         const fetchData = async () => {
             const res = new ForYouResults();
-            res.users = []; // n'est pas implementer
+            res.users = await userService.getDiscoverUsers();
             res.posts = await postService.getDiscoverPosts();
             setUsers(res.users);
             setPosts(res.posts);

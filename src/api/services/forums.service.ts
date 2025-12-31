@@ -1,6 +1,8 @@
 import { socialApiClient } from '../client';
 import { ForumDto, CreateForumDto, SubforumsDto } from '../dtos/forum.dto';
 import { SimpleForum } from '../types/forum/simple-forum';
+import {getInStoreUsageOfRealData} from "@/api/utils";
+import {getCommentsReplies, getForum, getMyForums, searchInForums} from "@/api/mock/functions";
 
 function ForumDtoTOSimpleForum(forumDto: ForumDto): SimpleForum {
     const simpleForum = new SimpleForum();
@@ -69,13 +71,22 @@ export const forumsService = {
    * GET /forums/me/
    */
   async getMyForums(): Promise<SimpleForum[]> {
-    try {
-      const response = await socialApiClient.get<ForumDto[]>('/api/v1/forums/me/');
-      return ForumDtosToSimpleForums(response.data);
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération de mes forums:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<ForumDto[]>('/api/v1/forums/me/');
+        return ForumDtosToSimpleForums(response.data);
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération de mes forums:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const forums = getMyForums();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(forums);
+      }, 300);
+    });
   },
 
   /**
@@ -83,15 +94,24 @@ export const forumsService = {
    * GET /forums/search/
    */
   async searchForums(query: string): Promise<SimpleForum[]> {
-    try {
-      const response = await socialApiClient.get<ForumDto[]>('/api/v1/forums/search/', {
-        params: { query: query },
-      });
-      return ForumDtosToSimpleForums(response.data);
-    } catch (error: any) {
-      console.error('Erreur lors de la recherche de forums:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<ForumDto[]>('/api/v1/forums/search/', {
+          params: {query: query},
+        });
+        return ForumDtosToSimpleForums(response.data);
+      } catch (error: any) {
+        console.error('Erreur lors de la recherche de forums:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const forums = searchInForums(query);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(forums);
+      }, 300);
+    });
   },
 
   /**
@@ -99,13 +119,27 @@ export const forumsService = {
    * GET /forums/{forum_id}/
    */
   async getForumById(forumId: string): Promise<SimpleForum> {
-    try {
-      const response = await socialApiClient.get<ForumDto>(`/api/v1/forums/${forumId}/`);
-      return ForumDtoTOSimpleForum(response.data);
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération du forum:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<ForumDto>(`/api/v1/forums/${forumId}/`);
+        return ForumDtoTOSimpleForum(response.data);
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération du forum:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const forum = getForum(parseInt(forumId));
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if(forum){
+          resolve(forum.forum);
+        }
+        else{
+          reject("Erreur lors de la récupération du forum")
+        }
+      }, 300);
+    });
   },
 
   /**

@@ -1,25 +1,24 @@
-import { getMyForums, getPost } from '@/api/mock/functions';
-import { postService, CreateCommentDto } from '@/api/services/post.service';
+import {CommentServerDto, postService} from '@/api/services/post.service';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
-import { useThemeContext } from '@/contexts/theme-context';import { InputBar } from '@/stories/InputBar';import { Post } from '@/stories/Post';
+import { useThemeContext } from '@/contexts/theme-context';
+import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
-import {RelativePathString, router, useLocalSearchParams, useRouter} from 'expo-router';
-import React, {useCallback, useEffect, useState} from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type FlatComment = CommentType & {
+type FlatComment = CommentServerDto & {
     level: number;
+    profilePictureUrl: string;
+    subComments: CommentServerDto[];
 };
 
-export default function ForumPostDetailScreen() {
+export default function PostDetailScreen() {
     const [fullPost, setFullPost] = useState<FullPost | null>(null);
-    const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-    const [commentText, setCommentText] = useState('');
-    const [isCreatingComment, setIsCreatingComment] = useState(false);
     const router = useRouter();
     const params = useLocalSearchParams();
     const { colorScheme } = useThemeContext();
@@ -31,15 +30,6 @@ export default function ForumPostDetailScreen() {
         if (postId) {
             const post = await postService.getPostById(postId);
             if (post) {
-                // Charger les commentaires depuis l'API
-                try {
-                    const commentsData = await postService.getPostComments(postId);
-                    // Convertir les commentaires plats en structure hiérarchisée
-                    post.comments = postService.convertFlatCommentsToHierarchical(commentsData);
-                } catch (error) {
-                    console.error('Erreur lors du chargement des commentaires:', error);
-                    post.comments = [];
-                }
                 setFullPost(post);
             }
         }
@@ -55,10 +45,6 @@ export default function ForumPostDetailScreen() {
         handleGetData();
     }, []);
 
-    useEffect(() => {
-        handleGetData();
-    }, [params.id]);
-
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('fr-FR', {
             day: 'numeric',
@@ -67,91 +53,33 @@ export default function ForumPostDetailScreen() {
         });
     };
 
-    const flattenComments = (
-        comments: CommentType[],
-        level = 0
-    ): FlatComment[] => {
-        let result: FlatComment[] = [];
-        comments.forEach((comment) => {
-            result.push({ ...comment, level });
-            if (comment.subComments && comment.subComments.length > 0) {
-                result = result.concat(
-                    flattenComments(comment.subComments, level + 1)
+    const flatComments = useMemo(() => {
+        if (!fullPost) return [];
+
+        const flatten = (comments: CommentServerDto[], level = 0): FlatComment[] => {
+            let result: FlatComment[] = [];
+            comments.forEach((comment) => {
+                const subComments = fullPost.comments.filter(
+                    (c) => c.parent_comment_id === comment.comment_id
                 );
-            }
-        });
-        return result;
-    };
 
-    const flatComments: FlatComment[] = fullPost
-        ? flattenComments(fullPost.comments)
-        : [];
+                result.push({
+                    ...comment,
+                    level,
+                    profilePictureUrl: `https://picsum.photos/seed/${comment.author_id}/96`,
+                    subComments,
+                });
 
-    const handleLike = async (postId: string, isComment: boolean = false) => {
-        if (!fullPost) return;
+                if (subComments.length > 0) {
+                    result = result.concat(flatten(subComments, level + 1));
+                }
+            });
+            return result;
+        };
 
-        const isLiked = isComment 
-            ? likedPosts.has(postId) 
-            : fullPost.post.id === postId && fullPost.post.liked;
-        
-        // Optimistic update
-        setFullPost((prev) => {
-            if (!prev) return prev;
-            const newLikeCount = 
-                typeof prev.post.likeCount === "number"
-                    ? isLiked
-                        ? prev.post.likeCount - 1
-                        : prev.post.likeCount + 1
-                    : isLiked
-                    ? 0
-                    : 1;
-            return {
-                ...prev,
-                post: {
-                    ...prev.post,
-                    liked: !isLiked,
-                    likeCount: newLikeCount,
-                },
-            };
-        });
-
-        try {
-            if (isLiked) {
-                await postService.unlikePost(postId);
-            } else {
-                await postService.likePost(postId);
-            }
-        } catch (e) {
-            // Revert on error
-            handleGetData();
-        }
-    };
-
-    const handleCreateComment = async () => {
-        if (!fullPost || !commentText.trim()) return;
-
-        setIsCreatingComment(true);
-        try {
-            const createCommentDto: CreateCommentDto = {
-                content: commentText,
-                parent_comment_id: null,
-            };
-            await postService.createComment(fullPost.post.id, createCommentDto);
-            setCommentText('');
-            // Recharger les commentaires
-            await handleGetData();
-        } catch (error) {
-            console.error('Erreur lors de la création du commentaire:', error);
-        } finally {
-            setIsCreatingComment(false);
-        }
-    };
-
-    function handleOpenProfile(){
-        //FIXME open profile tab if it's the actual connected user
-        router.push({pathname: `/(tabs)/forums/profile/[id]`,
-            params: { id: "id" }});/* FIXME with userID*/
-    }
+        const rootComments = fullPost.comments.filter(c => !c.parent_comment_id);
+        return flatten(rootComments);
+    }, [fullPost]);
 
     if (!fullPost) {
         return (
@@ -228,25 +156,22 @@ export default function ForumPostDetailScreen() {
 
             <FlatList
                 data={flatComments}
-                keyExtractor={(item) => item.commentId.toString()}
+                keyExtractor={(item) => item.comment_id}
                 ListHeaderComponent={
                     <>
                         <Post
                             username={fullPost.post.author.displayName}
-                            avatarUri={`https://picsum.photos/seed/${fullPost.post.author.id}/96`}
+                            avatarUri={fullPost.post.author.profilePictureUrl}
                             date={formatDate(fullPost.post.createdAt)}
-                            title={fullPost.post.title}
                             text={fullPost.post.content}
                             images={fullPost.post.medias.map((m) => m.mediaUrl)}
                             likeCount={fullPost.post.likeCount}
                             commentCount={fullPost.post.commentCount}
                             level={0}
-                            liked={fullPost.post.liked ?? false}
-                            onPressLike={() => handleLike(fullPost.post.id)}
+                            onPressLike={() => {}}
                             onPressComment={() => {}}
                             onPressRepost={() => {}}
                             onPressShare={() => {}}
-                            onPressUser={handleOpenProfile}
                         />
                         <View style={styles.postCommentSeparator} />
                     </>
@@ -254,18 +179,16 @@ export default function ForumPostDetailScreen() {
                 ItemSeparatorComponent={() => <View style={styles.commentSeparator} />}
                 renderItem={({ item }) => (
                     <Post
-                        username={item.author.displayName}
-                        avatarUri={item.author.profilePictureUrl}
-                        date={item.createdAt}
+                        username={item.author_username}
+                        avatarUri={item.profilePictureUrl}
+                        date={item.created_at}
                         text={item.content}
                         images={[]}
                         likeCount={0}
                         commentCount={item.subComments?.length || 0}
                         level={item.level + 1}
-                        // liked={likedPosts.has(item.commentId)}
-                        // onPressLike={() => handleLike(item.commentId)}
+                        onPressLike={() => {}}
                         onPressComment={() => {}}
-                        onPressUser={handleOpenProfile}
                     />
                 )}
                 contentContainerStyle={styles.listContent}
@@ -314,9 +237,5 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: Typography.sizes.general,
-    },
-    inputContainer: {
-        paddingHorizontal: Spacing.margin,
-        paddingTop: Spacing.padding,
     },
 });

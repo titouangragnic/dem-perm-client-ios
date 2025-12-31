@@ -1,4 +1,4 @@
-import { postService } from '@/api/services/post.service';
+import {CommentServerDto, postService} from '@/api/services/post.service';
 import { Comment as CommentType } from '@/api/types/post/comment';
 import { FullPost } from '@/api/types/post/full-post';
 import { Colors, Spacing, Typography } from '@/constants/theme';
@@ -7,12 +7,14 @@ import { Post } from '@/stories/Post';
 import { fontFamily } from '@/stories/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type FlatComment = CommentType & {
+type FlatComment = CommentServerDto & {
     level: number;
+    profilePictureUrl: string;
+    subComments: CommentServerDto[];
 };
 
 export default function PostDetailScreen() {
@@ -43,10 +45,6 @@ export default function PostDetailScreen() {
         handleGetData();
     }, []);
 
-    useEffect(() => {
-        handleGetData();
-    }, [params.id]);
-
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('fr-FR', {
             day: 'numeric',
@@ -55,25 +53,33 @@ export default function PostDetailScreen() {
         });
     };
 
-    const flattenComments = (
-        comments: CommentType[],
-        level = 0
-    ): FlatComment[] => {
-        let result: FlatComment[] = [];
-        comments.forEach((comment) => {
-            result.push({ ...comment, level });
-            if (comment.subComments && comment.subComments.length > 0) {
-                result = result.concat(
-                    flattenComments(comment.subComments, level + 1)
-                );
-            }
-        });
-        return result;
-    };
+    const flatComments = useMemo(() => {
+        if (!fullPost) return [];
 
-    const flatComments: FlatComment[] = fullPost
-        ? flattenComments(fullPost.comments)
-        : [];
+        const flatten = (comments: CommentServerDto[], level = 0): FlatComment[] => {
+            let result: FlatComment[] = [];
+            comments.forEach((comment) => {
+                const subComments = fullPost.comments.filter(
+                    (c) => c.parent_comment_id === comment.comment_id
+                );
+
+                result.push({
+                    ...comment,
+                    level,
+                    profilePictureUrl: `https://picsum.photos/seed/${comment.author_id}/96`,
+                    subComments,
+                });
+
+                if (subComments.length > 0) {
+                    result = result.concat(flatten(subComments, level + 1));
+                }
+            });
+            return result;
+        };
+
+        const rootComments = fullPost.comments.filter(c => !c.parent_comment_id);
+        return flatten(rootComments);
+    }, [fullPost]);
 
     if (!fullPost) {
         return (
@@ -150,7 +156,7 @@ export default function PostDetailScreen() {
 
             <FlatList
                 data={flatComments}
-                keyExtractor={(item) => item.commentId.toString()}
+                keyExtractor={(item) => item.comment_id}
                 ListHeaderComponent={
                     <>
                         <Post
@@ -173,9 +179,9 @@ export default function PostDetailScreen() {
                 ItemSeparatorComponent={() => <View style={styles.commentSeparator} />}
                 renderItem={({ item }) => (
                     <Post
-                        username={item.author.displayName}
-                        avatarUri={item.author.profilePictureUrl}
-                        date={item.createdAt}
+                        username={item.author_username}
+                        avatarUri={item.profilePictureUrl}
+                        date={item.created_at}
                         text={item.content}
                         images={[]}
                         likeCount={0}

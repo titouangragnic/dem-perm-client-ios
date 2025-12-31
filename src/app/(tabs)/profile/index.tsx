@@ -36,7 +36,7 @@ export default function ProfileScreen() {
       setError(null);
       const userProfile = await userService.getMe();
       setProfile(userProfile);
-      // console.log('Profil récupéré:', userProfile);
+      console.log('Profil récupéré:', userProfile);
     } catch (err: any) {
       console.error("Erreur lors de la récupération du profil:", err);
       // Ignore les erreurs CORS ou réseau si elles ne contiennent pas de response
@@ -92,9 +92,9 @@ export default function ProfileScreen() {
     <>
       <ThemedView>
         <ProfileHeader
-          username={profile.username || "Utilisateur"}
-          description={profile.biography || "Aucune biographie"}
-          votes={0}
+          username={profile.user.displayName || "Utilisateur"}
+          description={profile.bio || "Aucune biographie"}
+          votes={profile.voteCount || 0}
           bannerUri={`https://picsum.photos/seed/${profile.user.id}banner/720`}
           avatarUri={`https://picsum.photos/seed/${profile.user.id}/96`}
           onPressModify={handleModifyPress}

@@ -8,6 +8,8 @@ import {SimpleUser} from "@/api/types/common/simple-user";
 import {SimpleForum} from "@/api/types/forum/simple-forum";
 import {SimplePost} from "@/api/types/common/simple-post";
 import { Comment } from "@/api/types/post/comment";
+import {getInStoreUsageOfRealData} from "@/api/utils";
+import {getCommentsReplies, getFeed, getPost} from "@/api/mock/functions";
 
 export interface CreatePostDto {
   title : string;
@@ -28,7 +30,7 @@ export interface CreateCommentDto {
   parent_comment_id?: string | null;
 }
 
-interface CommentServerDto {
+export interface CommentServerDto {
   comment_id: string;
   post_id: string;
   author_id: string;
@@ -176,13 +178,22 @@ export const postService = {
    * GET /api/v1/posts/discover/
    */
   async getDiscoverPosts(): Promise<SimplePost[]> {
-    try {
-      const response = await socialApiClient.get<PostServerDto[]>('/api/v1/posts/discover/');
-      return response.data.map(postServerDtoToSimplePost);
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération des posts discover:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<PostServerDto[]>('/api/v1/posts/discover/');
+        return response.data.map(postServerDtoToSimplePost);
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération des posts discover:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const posts = getFeed();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(posts);
+      }, 300);
+    });
   },
 
   /**
@@ -190,13 +201,22 @@ export const postService = {
    * GET /api/v1/posts/feed/
    */
   async getFeedPosts(): Promise<SimplePost[]> {
-    try {
-      const response = await socialApiClient.get<PostServerDto[]>('/api/v1/posts/feed/');
-      return response.data.map(postServerDtoToSimplePost);
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération du feed:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<PostServerDto[]>('/api/v1/posts/feed/');
+        return response.data.map(postServerDtoToSimplePost);
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération du feed:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const posts = getFeed();
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(posts);
+      }, 300);
+    });
   },
 
   /**
@@ -204,13 +224,25 @@ export const postService = {
    * GET /api/v1/posts/{post_id}/
    */
   async getPostById(postId: string): Promise<FullPost> {
-    try {
-      const response = await socialApiClient.get<PostServerDto>(`/api/v1/posts/${postId}/`);
-      return postServerDtoToFullPost(response.data);
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération du post:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<PostServerDto>(`/api/v1/posts/${postId}/`);
+        return postServerDtoToFullPost(response.data);
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération du post:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const post = getPost(postId);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if(post){
+          resolve(post);
+        }
+        reject("Erreur lors de la récupération du post");
+      }, 300);
+    });
   },
 
   /**
@@ -248,13 +280,25 @@ export const postService = {
    * GET /api/v1/posts/{post_id}/likes/
    */
   async getPostLikes(postId: string): Promise<number> {
-    try {
-      const response = await socialApiClient.get<Like[]>(`/api/v1/posts/${postId}/likes/`);
-      return response.data.length;
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération des likes:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<Like[]>(`/api/v1/posts/${postId}/likes/`);
+        return response.data.length;
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération des likes:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const post = getPost(postId);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if(post){
+          resolve(post.post.likeCount);
+        }
+        reject("Erreur lors de la récupération des likes");
+      }, 300);
+    });
   },
 
   /**
@@ -275,13 +319,25 @@ export const postService = {
    * GET /api/v1/comments/posts/{post_id}/
    */
   async getPostComments(postId: string): Promise<CommentServerDto[]> {
-    try {
-      const response = await socialApiClient.get<CommentServerDto[]>(`/api/v1/comments/posts/${postId}/`);
-      return response.data;
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération des commentaires:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<CommentServerDto[]>(`/api/v1/comments/posts/${postId}/`);
+        return response.data;
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération des commentaires:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const post = getPost(postId);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if(post){
+          resolve(post.comments);
+        }
+        reject("Erreur lors de la récupération des commentaires");
+      }, 300);
+    });
   },
 
   /**
@@ -319,13 +375,25 @@ export const postService = {
    * GET /api/v1/comments/{comment_id}/replies/
    */
   async getCommentReplies(commentId: string): Promise<CommentServerDto[]> {
-    try {
-      const response = await socialApiClient.get<CommentServerDto[]>(`/api/v1/comments/${commentId}/replies/`);
-      return response.data;
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération des réponses:', error.response?.data || error.message);
-      throw error;
+    const isUsingRealData = await getInStoreUsageOfRealData();
+    if (isUsingRealData === "true") {
+      try {
+        const response = await socialApiClient.get<CommentServerDto[]>(`/api/v1/comments/${commentId}/replies/`);
+        return response.data;
+      } catch (error: any) {
+        console.error('Erreur lors de la récupération des réponses:', error.response?.data || error.message);
+        throw error;
+      }
     }
+    const comments = getCommentsReplies(commentId);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if(comments){
+          resolve(comments);
+        }
+        reject("Erreur lors de la récupération des réponses");
+      }, 300);
+    });
   },
 
   /**
@@ -334,8 +402,6 @@ export const postService = {
   convertFlatCommentsToHierarchical(flatComments: CommentServerDto[]): Comment[] {
     return buildHierarchicalComments(flatComments);
   },
-
-
 
 };
 
