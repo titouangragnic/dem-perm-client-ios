@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-} from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { domainsService } from "@/api/services/domains.service";
+import { SimpleForum } from "@/api/types/forum/simple-forum";
 import { ThemedView } from "@/components/themed-view";
 import { Colors, Spacing, Typography } from "@/constants/theme";
 import { useThemeContext } from "@/contexts/theme-context";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/stories/Button";
-import { InputBar } from "@/stories/InputBar";
 import { Forum } from "@/stories/Forum";
-import { SimpleForum } from "@/api/types/forum/simple-forum";
-import { domainsService } from "@/api/services/domains.service";
+import { InputBar } from "@/stories/InputBar";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Header inspiré du democracy-header
 type TabKey = "decouvrir" | "mesForums";
@@ -89,7 +89,7 @@ export default function ThemeForumsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [domainName, setDomainName] = useState("");
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     // Récupérer l'ID du domaine depuis les paramètres
     const domainId = params.domainId as string;
 
@@ -103,7 +103,7 @@ export default function ThemeForumsScreen() {
       }
     }
     loadData();
-  }, [params.domainId]);
+  }, [params.domainId]));
 
   const handleTabChange = (tab: TabKey) => {
     setActiveTab(tab);
@@ -127,6 +127,13 @@ export default function ThemeForumsScreen() {
     // Logique de recherche
     console.log("Recherche:", searchQuery);
   };
+
+    const handleCreateForum = () => {
+        router.push({
+          pathname: '/(tabs)/forums/createForum',
+          params: { domainId: params.domainId },
+        });
+    };
 
   // Filtrer les forums selon la recherche
   const filteredForums = forums.filter(
@@ -163,6 +170,15 @@ export default function ThemeForumsScreen() {
             value={searchQuery}
           />
         </View>
+      </View>
+
+      {/* Bouton Créer un forum */}
+      <View style={styles.createButtonContainer}>
+        <Button
+          label="Créer un forum"
+          onPress={handleCreateForum}
+          size="large"
+        />
       </View>
 
       <ScrollView
@@ -241,5 +257,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: Typography.sizes.general,
     marginTop: Spacing.margin * 2,
+  },
+  createButtonContainer: {
+    marginVertical: Spacing.margin,
+    marginHorizontal: Spacing.margin,
   },
 });
