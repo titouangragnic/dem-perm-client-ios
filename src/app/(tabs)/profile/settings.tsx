@@ -11,11 +11,10 @@ import {useTheme} from "@/hooks/use-theme";
 import {Settings} from "@/api/types/profile/settings";
 import {getSettings} from "@/api/mock/functions";
 import {useUser} from "@/contexts/user-context";
-import * as SecureStore from 'expo-secure-store';
 import {getInStoreUsageOfRealData} from "@/api/utils";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 async function saveInStoreUsageOfRealData( value: string) {
-    await SecureStore.setItemAsync("usingRealData" , value);
+    await AsyncStorage.setItem("usingRealData" , value);
 }
 
 export default function SettingsScreen() {
