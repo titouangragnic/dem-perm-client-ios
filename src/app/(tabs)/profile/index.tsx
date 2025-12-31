@@ -95,8 +95,8 @@ export default function ProfileScreen() {
           username={profile.username || "Utilisateur"}
           description={profile.biography || "Aucune biographie"}
           votes={0}
-          bannerUri={profile.bannerUrl}
-          avatarUri={profile.profilePictureUrl}
+          bannerUri={`https://picsum.photos/seed/${profile.id}banner/720`}
+          avatarUri={`https://picsum.photos/seed/${profile.id}/96`}
           onPressModify={handleModifyPress}
           onPressMyVotes={handleMyVotesPress}
           onPressSettings={handleSettingsPress}

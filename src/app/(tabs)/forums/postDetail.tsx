@@ -233,7 +233,7 @@ export default function ForumPostDetailScreen() {
                     <>
                         <Post
                             username={fullPost.post.author.displayName}
-                            avatarUri={fullPost.post.author.profilePictureUrl}
+                            avatarUri={`https://picsum.photos/seed/${fullPost.post.author.id}/96`}
                             date={formatDate(fullPost.post.createdAt)}
                             title={fullPost.post.title}
                             text={fullPost.post.content}
